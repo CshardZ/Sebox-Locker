@@ -1,10 +1,19 @@
-#include <iostream>
+#include "app-window.h"
 
-int main()
+#ifdef __ANDROID__
+extern "C" void slint_main()
+#else
+int main(int argc, char **argv)
+#endif
 {
-    std::cout << "SEBox Locker started!" << std::endl;
+    auto ui = AppWindow::create();
 
-    std::cin.get();
+    ui->on_request_increase_value([&]{
+        ui->set_counter(ui->get_counter() + 1);
+    });
 
+    ui->run();
+#ifndef __ANDROID__
     return 0;
+#endif
 }
