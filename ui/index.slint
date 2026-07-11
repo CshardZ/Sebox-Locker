@@ -1,0 +1,17 @@
+import { VerticalBox } from "std-widgets.slint";
+
+export component HelloWorld inherits Window {
+    width: 400px;
+    height: 300px;
+    title: "Hello Slint";
+
+    VerticalBox {
+        alignment: center;
+
+        Text {
+            text: "Hello, World!";
+            font-size: 32px;
+            horizontal-alignment: center;
+        }
+    }
+}

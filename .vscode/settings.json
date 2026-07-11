@@ -1,0 +1,14 @@
+{
+    "C_Cpp.intelliSenseEngine": "default",
+    "C_Cpp.errorSquiggles": "enabled",
+    "C_Cpp.loggingLevel": "Error",
+
+    "C_Cpp.default.compileCommands": "${workspaceFolder}/build/compile_commands.json",
+
+    "C_Cpp.intelliSenseCacheSize": 2048,
+    "C_Cpp.intelliSenseCachePath": "${workspaceFolder}/.vscode/.cache",
+
+    "files.exclude": {
+        "**/.git": true,
+    }
+}

@@ -8,6 +8,11 @@ project(
     LANGUAGES C CXX
 )
 
+add_executable(
+    Sebox
+    src/main.cpp
+)
+
 # --- CPM executable path
 include(cmake/CPM.cmake)
 
@@ -15,12 +20,10 @@ include(cmake/CPM.cmake)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
-add_executable(
-    Sebox
-    src/main.cpp
-)
 
-# --- Slint project template boilerplate
+# ------------------------------------------- 
+# Slint project template boilerplate
+# -------------------------------------------
 find_package(Slint QUIET)
 
 if (NOT Slint_FOUND)
@@ -38,7 +41,7 @@ if (NOT Slint_FOUND)
 endif (NOT Slint_FOUND)
 
 target_link_libraries(Sebox PRIVATE Slint::Slint)
-slint_target_sources(Sebox ui/app-window.slint)
+slint_target_sources(Sebox ui/index.slint)
 
 # On Windows, copy the Slint DLL next to the application binary so that it's found.
 if (WIN32)
