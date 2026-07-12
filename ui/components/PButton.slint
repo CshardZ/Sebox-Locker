@@ -1,0 +1,31 @@
+// ----------------------------------------------
+// PButton: Primary Button for app
+// ----------------------------------------------
+
+
+export component PButton inherits Rectangle {
+    height: 50px;
+    width: 150px;
+    background: #7BAE8B;
+    border-radius: 5px;
+    border-width: 2px;
+    border-color: green;
+
+    in property <string> label: "PButton";
+    callback clicked();
+    
+    Text {
+        text: root.label;
+        color: black;
+        font-size: 16px;
+        font-weight: 600;
+        vertical-alignment: center;
+        horizontal-alignment: center;
+    }
+
+    TouchArea {
+        clicked => {
+            root.clicked();
+        }
+    }
+}

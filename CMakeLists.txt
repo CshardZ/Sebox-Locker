@@ -40,7 +40,17 @@ if (NOT Slint_FOUND)
   FetchContent_MakeAvailable(Slint)
 endif (NOT Slint_FOUND)
 
-target_link_libraries(Sebox PRIVATE Slint::Slint)
+
+# --- NFD library
+FetchContent_Declare(
+  nfd
+  GIT_REPOSITORY https://github.com/btzy/nativefiledialog-extended.git
+  GIT_TAG        master
+)
+FetchContent_MakeAvailable(nfd)
+
+
+target_link_libraries(Sebox PRIVATE Slint::Slint nfd)
 slint_target_sources(Sebox ui/index.slint)
 
 # On Windows, copy the Slint DLL next to the application binary so that it's found.

@@ -1,0 +1,12 @@
+import { PButton } from "../components/PButton.slint";
+
+
+export component Content inherits Rectangle {
+
+    callback addFiles();
+
+    btn_add_files := PButton {
+        label: "Select Files"; 
+        clicked => { addFiles(); }
+    }
+}
