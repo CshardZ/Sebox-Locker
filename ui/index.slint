@@ -1,13 +1,18 @@
+import "config/fonts/Sansation-Light.ttf";
+import "config/fonts/Sansation-Regular.ttf";
+import "config/fonts/Sansation-Bold.ttf";
+
 import { Header } from "layout/Header.slint";
 import { Sidebar } from "layout/Sidebar.slint";
 import { Content } from "layout/Content.slint";
 
 
 export component RootWindow inherits Window {
+    default-font-family: "Sansation";
     title: "Sebox Locker";
-    min-width: 800px;
+    min-width: 800px; 
     min-height: 500px; 
-    background: #EEF5EF;
+    background: #EEF5EF; 
  
     callback addFiles(); // Your global bridge to C++
 
