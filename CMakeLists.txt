@@ -8,16 +8,17 @@ project(
     LANGUAGES C CXX
 )
 
-add_executable(
-    Sebox
-    src/main.cpp
+add_executable( 
+	Sebox
+	src/main.cpp
+	src/file/file_picker.cpp
 )
 
 # --- CPM executable path
 include(cmake/CPM.cmake)
 
 # --- Set and enforce C++ language version (not the compiler version - MSVC compiler)
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
 
@@ -50,8 +51,17 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(nfd)
 
 
-target_link_libraries(Sebox PRIVATE Slint::Slint nfd)
+target_include_directories(Sebox 
+	PRIVATE 
+		src
+)
+target_link_libraries(Sebox 
+	PRIVATE 
+		Slint::Slint 
+		nfd::nfd
+)
 slint_target_sources(Sebox ui/index.slint)
+
 
 # On Windows, copy the Slint DLL next to the application binary so that it's found.
 if (WIN32)

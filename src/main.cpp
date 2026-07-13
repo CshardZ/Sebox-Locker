@@ -1,22 +1,19 @@
-#include "index.h"
-#include <nfd.h>
+#include <iostream>
+
+#include <index.h>
+#include "file/file_picker.h"
 
 
 int main() {
     auto ui = RootWindow::create();
-
-    ui->on_addFiles([]() {
-        NFD_Init();
-        nfdchar_t *outPath = NULL;
-        nfdresult_t result = NFD_OpenDialog(&outPath, NULL, 0, NULL);
-
-        if (result == NFD_OKAY) {
-            // Do your logic here
-            NFD_FreePath(outPath);
-        }
-        NFD_Quit();
+    
+    FilePicker picker; 
+    ui->on_addFiles([&picker]() {
+        std::cout << "UI Button clicked! Opening file picker..." << std::endl;
+        picker.pickFiles();
     });
 
-    ui->run();
+    ui->run(); 
+
     return 0;
 }

@@ -5,7 +5,7 @@ export component Content inherits Rectangle {
 
     callback addFiles();
 
-    btn_add_files := PButton {
+    pick_files_clicked := PButton {
         label: "Select Files"; 
         clicked => { addFiles(); }
     }

@@ -14,7 +14,7 @@ export component RootWindow inherits Window {
     min-height: 500px; 
     background: #EEF5EF; 
  
-    callback addFiles(); // Your global bridge to C++
+    callback addFiles();
 
     VerticalLayout {
         Header {} 
@@ -23,7 +23,6 @@ export component RootWindow inherits Window {
             Content {
                 horizontal-stretch: 1;
                 vertical-stretch: 1;
-                // 3. When Content triggers its callback, trigger the global one
                 addFiles => { root.addFiles(); }
             }
         }
