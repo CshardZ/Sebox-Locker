@@ -1,12 +1,11 @@
-import { PButton } from "../components/PButton.slint";
+import { Theme } from "../config/theme.slint";
 
 
 export component Content inherits Rectangle {
+    background: #EEF5EF;
 
-    callback addFiles();
-
-    pick_files_clicked := PButton {
-        label: "Select Files"; 
-        clicked => { addFiles(); }
+    Text {
+        text: "Locker is Empty";
+        color: Theme.text-color-1;
     }
 }

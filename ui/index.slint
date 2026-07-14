@@ -1,6 +1,4 @@
-import "config/fonts/Sansation-Light.ttf";
-import "config/fonts/Sansation-Regular.ttf";
-import "config/fonts/Sansation-Bold.ttf";
+import "config/fonts/Outfit-Variable.ttf";
 
 import { Header } from "layout/Header.slint";
 import { Sidebar } from "layout/Sidebar.slint";
@@ -8,22 +6,32 @@ import { Content } from "layout/Content.slint";
 
 
 export component RootWindow inherits Window {
-    default-font-family: "Sansation";
-    title: "Sebox Locker";
-    min-width: 800px; 
-    min-height: 500px; 
-    background: #EEF5EF; 
+    default-font-family: "Outfit";
+    default-font-size: 16px;
+    default-font-weight: 600;
+    
+    title: "Sebox Locker"; 
+    min-width: 800px;
+    min-height: 500px;
+    background: yellow;
  
-    callback addFiles();
-
+    callback open_nfd_files_selector();
+ 
     VerticalLayout {
-        Header {} 
+        Header {
+            height: 80px;
+        }
+
         HorizontalLayout {
-            Sidebar { pwidth: 200px; }
+            Sidebar {
+                width: 200px;
+                vertical-stretch: 1; 
+                add_files => { root.open_nfd_files_selector(); }
+            }
+
             Content {
                 horizontal-stretch: 1;
                 vertical-stretch: 1;
-                addFiles => { root.addFiles(); }
             }
         }
     }

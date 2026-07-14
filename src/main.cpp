@@ -8,7 +8,7 @@ int main() {
     auto ui = RootWindow::create();
     
     FilePicker picker; 
-    ui->on_addFiles([&picker]() {
+    ui->on_open_nfd_files_selector([&picker]() {
         std::cout << "UI Button clicked! Opening file picker..." << std::endl;
         picker.pickFiles();
     });
