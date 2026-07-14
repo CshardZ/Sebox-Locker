@@ -9,8 +9,13 @@ int main() {
     
     FilePicker picker; 
     ui->on_open_nfd_files_selector([&picker]() {
-        std::cout << "UI Button clicked! Opening file picker..." << std::endl;
+        std::cout << "Add Files - button clicked" << std::endl;
         picker.pickFiles();
+    });
+
+    ui->on_open_nfd_folder_selector([&picker]() {
+        std::cout <<"Add Folder - button clicked" << std::endl;
+        picker.pickFolder();
     });
 
     ui->run(); 

@@ -9,13 +9,14 @@ export component RootWindow inherits Window {
     default-font-family: "Outfit";
     default-font-size: 16px;
     default-font-weight: 600;
-    
+     
     title: "Sebox Locker"; 
     min-width: 800px;
     min-height: 500px;
     background: yellow;
  
     callback open_nfd_files_selector();
+    callback open_nfd_folder_selector();
  
     VerticalLayout {
         Header {
@@ -27,6 +28,7 @@ export component RootWindow inherits Window {
                 width: 200px;
                 vertical-stretch: 1; 
                 add_files => { root.open_nfd_files_selector(); }
+                add_folder => { root.open_nfd_folder_selector(); }
             }
 
             Content {

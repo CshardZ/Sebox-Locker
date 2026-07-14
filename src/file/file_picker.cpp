@@ -12,7 +12,6 @@ vector<string> FilePicker::pickFiles() {
     vector<string> files; 
     
     const nfdpathset_t* pathSet = nullptr; 
-    // Pass the address of the pointer (&pathSet evaluates to const nfdpathset_t**)
     nfdresult_t result = NFD_OpenDialogMultipleU8(&pathSet, nullptr, 0, nullptr);
     
     if(result == NFD_OKAY) {
@@ -34,4 +33,22 @@ vector<string> FilePicker::pickFiles() {
 
     NFD_Quit();
     return files;
+}
+
+
+string FilePicker::pickFolder() {
+    NFD_Init();
+    std::string folder;
+
+    nfdu8char_t* outPath = nullptr;
+    nfdresult_t result = NFD_PickFolderU8(&outPath, nullptr);
+
+    if (result == NFD_OKAY) {
+        folder = std::string(outPath);
+        cout << "Selected Folder: " << folder << endl;
+        NFD_FreePathU8(outPath);
+    }
+
+    NFD_Quit();
+    return folder;
 }
