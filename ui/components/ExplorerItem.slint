@@ -5,13 +5,17 @@ import { DividerLine } from "./DividerLine.slint";
 export component ExplorerItem inherits Rectangle {
     in property <string> name;
     in property <bool> is_directory;
-    in property <image> thumbnail;
+    in property <string> path;
+
+    callback clicked(string);
 
     height: 60px;
     border-radius: 5px;
     background: touch.pressed ? #d1e7dd : #ffffff;
-    
-    touch := TouchArea { } // takes parent full dims by default
+
+    touch := TouchArea {
+        clicked => { root.clicked(path); }
+    }
 
     HorizontalLayout {
         padding: 10px;

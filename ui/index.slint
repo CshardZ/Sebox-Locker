@@ -23,7 +23,7 @@ export component RootWindow inherits Window {
  
     // File Explorer
     in property <[ExplorerItem]> explorer_items;
-
+    callback open_file(string);
 
     VerticalLayout {
         Header {
@@ -42,6 +42,7 @@ export component RootWindow inherits Window {
                 horizontal-stretch: 1;
                 vertical-stretch: 1;
                 explorer_items: root.explorer_items;
+                open_file(filepath) => {root.open_file(filepath); }
             }
         }
     }

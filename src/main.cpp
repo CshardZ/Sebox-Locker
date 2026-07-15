@@ -82,10 +82,17 @@ int main() {
     for (const auto& item : explorer_items) {
         items->push_back(ExplorerItem{
             .name = slint::SharedString(item.name),
-            .is_directory = item.is_directory
+            .is_directory = item.is_directory,
+            .path = item.path
         });
     }
     ui->set_explorer_items(items);
+
+    ui->on_open_file([&explorer](slint::SharedString path) {
+        std::string file_path = std::string(path);
+        std::cout << "Opening file: " << file_path << '\n';
+        explorer.open_file(file_path);
+    });
 
     ui->run(); 
 
