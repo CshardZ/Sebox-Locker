@@ -2,6 +2,7 @@ import "config/fonts/Outfit-Variable.ttf";
 import { Header } from "layout/Header.slint";
 import { Sidebar } from "layout/Sidebar.slint";
 import { Content } from "layout/Content.slint";
+import { LoginPrompt } from "components/LoginPrompt.slint";
 import { ExplorerItem } from "models.slint";
 
 
@@ -14,8 +15,12 @@ export component RootWindow inherits Window {
     title: "Sebox Locker"; 
     min-width: 800px;
     min-height: 500px;
-    background: yellow;
- 
+    background: #EEF5EF;
+    
+    // Authentication
+    in-out property <bool> is_authenticated: false;
+    callback login_submitted(string);
+
     // File Picker
     callback open_nfd_files_selector();
     callback open_nfd_folder_selector();
@@ -29,7 +34,15 @@ export component RootWindow inherits Window {
             height: 80px;
         }
 
-        HorizontalLayout {
+        if (!is_authenticated) : HorizontalLayout {
+            alignment: center;
+            
+            LoginPrompt {
+                login_submitted(user_input) => { root.login_submitted(user_input); }
+            }
+        }
+
+        if(is_authenticated) : HorizontalLayout {
             Sidebar {
                 width: 300px;
                 vertical-stretch: 1; 

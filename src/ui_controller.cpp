@@ -112,5 +112,10 @@ void UIController::bind_ui_callbacks() {
         this->explorer.open_file(file_path);
     });
     // ====================================================
+    gui->on_login_submitted([this](slint::SharedString user_input) {
+        std::cout << "Password Submitted: " << user_input << '\n';
+        gui->set_is_authenticated(true);
+    });
+    // ====================================================
 }
 // ================================================================================================
