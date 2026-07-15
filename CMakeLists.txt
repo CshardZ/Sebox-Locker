@@ -19,6 +19,7 @@ add_executable(
     src/core/file_picker.cpp
     src/core/file_explorer.cpp
     src/core/file_encryptor.cpp
+    src/core/auth_service.cpp
     src/utils.cpp
     src/ui_controller.cpp
 )

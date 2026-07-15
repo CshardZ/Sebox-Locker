@@ -2,12 +2,14 @@
 // - Main UI/GUI controller logic
 // ----------------------------------------------
 #include <slint.h>
+#include <fstream>
 #include "index.h"
 #include "include/ui_controller.h"
 #include "include/utils.h"
 #include "core/include/file_picker.h"
 #include "core/include/file_explorer.h"
 #include "core/include/file_encryptor.h"
+#include "core/include/auth_service.h"
 
 namespace fs = std::filesystem;
 
@@ -113,8 +115,22 @@ void UIController::bind_ui_callbacks() {
     });
     // ====================================================
     gui->on_login_submitted([this](slint::SharedString user_input) {
-        std::cout << "Password Submitted: " << user_input << '\n';
-        gui->set_is_authenticated(true);
+        std::string password = std::string(user_input);
+        std::cout << "Password Submitted: " << password << '\n';
+        std::string hashed_password = AuthService::hash_password(password);
+        std::cout << "Hashed Password: " << hashed_password << '\n';
+
+        // create a file -> store password -> encrypt file : required for password verification on next login
+        fs::path seboxAppDataDir = getAppDataDirectory();
+        fs::path passwordFile = seboxAppDataDir / "hashed_password.txt";
+        std::ofstream out(passwordFile, std::ios::binary);
+        if (!out) {
+            throw std::runtime_error("Failed to create password file");
+        }
+        out << hashed_password;   // or out.write(...)
+        out.close();
+
+        // gui->set_is_authenticated(true);
     });
     // ====================================================
 }
