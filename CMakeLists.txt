@@ -15,13 +15,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # --- Executable
 add_executable(
     Sebox
-    src/main.cpp
-    src/core/file_picker.cpp
-    src/core/file_explorer.cpp
-    src/core/file_encryptor.cpp
+    src/core/file_service.cpp
     src/core/auth_service.cpp
     src/utils.cpp
     src/ui_controller.cpp
+    src/main.cpp
 )
 
 # --- CPM

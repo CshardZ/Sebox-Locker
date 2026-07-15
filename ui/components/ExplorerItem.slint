@@ -7,8 +7,8 @@ import { DividerLine } from "./DividerLine.slint";
 
 export component ExplorerItem inherits Rectangle {
     in property <string> name;
-    in property <bool> is_directory;
     in property <string> path;
+    in property <bool> is_directory;
 
     callback clicked(string);
 

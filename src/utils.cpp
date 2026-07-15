@@ -1,11 +1,12 @@
 // ----------------------------------------------
 // - app utilities and helpers
 // ----------------------------------------------
+#include "include/utils.h"
 #include <iostream> 
 #include <filesystem>
-#include "include/utils.h"
 
 namespace fs = std::filesystem;
+using namespace std;
 
 
 fs::path getAppDataDirectory() {
@@ -14,38 +15,36 @@ fs::path getAppDataDirectory() {
     fs::path base;
     #if defined(_WIN32)
         // Windows: Use LocalAppData environment variable
-        const char* appdata = std::getenv("LOCALAPPDATA");
+        const char* appdata = getenv("LOCALAPPDATA");
         base = appdata ? fs::path(appdata) : fs::path(".");
     #elif defined(__APPLE__)
         // macOS: Standard user library path
-        base = fs::path(std::getenv("HOME")) / "Library/Application Support";
+        base = fs::path(getenv("HOME")) / "Library/Application Support";
     #else
         // Linux: Follows XDG standard
-        const char* home = std::getenv("HOME");
+        const char* home = getenv("HOME");
         base = home ? (fs::path(home) / ".local/share") : fs::path(".");
     #endif
 
     fs::path seboxAppDataDir = base / "Sebox";
-    std::error_code ec;
+    error_code ec;
     if (!fs::exists(seboxAppDataDir)) {
         if (!fs::create_directories(seboxAppDataDir, ec)) {
-            std::cout << "Failed to create directory: " << ec.message() << std::endl;
+            cout << "Failed to create directory: " << ec.message() << endl;
         }
     }
-    std::cout <<"Created/Retrieved App data path: " << seboxAppDataDir << std::endl;
+    cout <<"Created/Retrieved App data path: " << seboxAppDataDir << endl;
     return seboxAppDataDir;
 }
 
 void cleanupTempDirectory() {
-    namespace fs = std::filesystem;
     fs::path temp_dir = getAppDataDirectory() / "temp";
-
     if (fs::exists(temp_dir)) {
-        std::error_code ec;
+        error_code ec;
         if (fs::remove_all(temp_dir, ec)) {
-            std::cout << "Successfully cleaned temp directory." << std::endl;
+            cout << "Successfully cleaned temp directory." << endl;
         } else if (ec) {
-            std::cerr << "Error cleaning temp directory: " << ec.message() << std::endl;
+            cerr << "Error cleaning temp directory: " << ec.message() << endl;
         }
     }
 }

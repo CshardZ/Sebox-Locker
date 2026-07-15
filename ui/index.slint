@@ -23,11 +23,11 @@ export component RootWindow inherits Window {
 
     // File Picker
     callback open_nfd_files_selector();
-    callback open_nfd_folder_selector();
+    // callback open_nfd_folder_selector();
  
     // File Explorer
     in property <[ExplorerItem]> explorer_items;
-    callback open_file(string);
+    callback view_file(string);
 
     VerticalLayout {
         Header {
@@ -38,7 +38,7 @@ export component RootWindow inherits Window {
             alignment: center;
             
             LoginPrompt {
-                login_submitted(user_input) => { root.login_submitted(user_input); }
+                login_submitted(password_input) => { root.login_submitted(password_input); }
             }
         }
 
@@ -47,14 +47,14 @@ export component RootWindow inherits Window {
                 width: 300px;
                 vertical-stretch: 1; 
                 add_files => { root.open_nfd_files_selector(); }
-                add_folder => { root.open_nfd_folder_selector(); }
+                // add_folder => { root.open_nfd_folder_selector(); }
             }
 
             Content {
                 horizontal-stretch: 1;
                 vertical-stretch: 1;
                 explorer_items: root.explorer_items;
-                open_file(filepath) => {root.open_file(filepath); }
+                view_file(filepath) => {root.view_file(filepath); }
             }
         }
     }

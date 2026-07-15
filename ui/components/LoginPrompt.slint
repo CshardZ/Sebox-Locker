@@ -4,7 +4,7 @@ import { PButton } from "../components/PButton.slint";
 
 
 export component LoginPrompt {
-    in-out property <string> user_input;
+    in-out property <string> password_input;
     callback login_submitted(string);
 
     Rectangle {
@@ -32,16 +32,16 @@ export component LoginPrompt {
                 input-type: password;
                 horizontal-alignment: center;
 
-                text <=> user_input;
+                text <=> password_input;
                 accepted(text) => {
-                    root.login_submitted(root.user_input);
+                    root.login_submitted(root.password_input);
                 }
             }
 
             PButton {
                 label: "Unlock";
                 clicked => { 
-                    root.login_submitted(root.user_input);
+                    root.login_submitted(root.password_input);
                 }
             }
         }

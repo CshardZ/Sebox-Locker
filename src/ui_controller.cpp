@@ -1,31 +1,29 @@
 // ----------------------------------------------
 // - Main UI/GUI controller logic
 // ----------------------------------------------
-#include <slint.h>
-#include <fstream>
-#include "index.h"
 #include "include/ui_controller.h"
-#include "include/utils.h"
-#include "core/include/file_picker.h"
-#include "core/include/file_explorer.h"
-#include "core/include/file_encryptor.h"
+#include <fstream>
+#include <slint.h>
+#include "index.h"
+
+#include "core/include/file_service.h"
 #include "core/include/auth_service.h"
+#include "include/utils.h"
 
 namespace fs = std::filesystem;
 
 
-std::vector<unsigned char> myKey = {
+std::vector<unsigned char> tempKey = { // TODO - not here
     1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
     17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32
 };
 
 
 // Constructor
-UIController::UIController(slint::ComponentHandle<RootWindow> gui) : gui(gui), picker(), explorer(), encryptor(myKey) {
+UIController::UIController(slint::ComponentHandle<RootWindow> gui) : gui(gui), file_service(tempKey) {
     // Used intializer list
     // Body Empty
 }
-
 // Destructor
 UIController::~UIController() {}
 
@@ -40,7 +38,7 @@ void UIController::refresh_explorer() {
         fs::create_directories(temp_dir);
     }
 
-    auto explorer_items = explorer.list_directory(base_path);
+    auto explorer_items = file_service.get_directory_contents(base_path.string());
     auto items = std::make_shared<slint::VectorModel<ExplorerItem>>();
     
     for (const auto& item : explorer_items) {
@@ -51,7 +49,7 @@ void UIController::refresh_explorer() {
         if (!item.is_directory) {
             display_name = fs::path(item.name).stem().string();
             fs::path dest_path = temp_dir / display_name;
-            encryptor.decrypt_file(source_path, dest_path);
+            file_service.decrypt_and_copy_file(source_path.string(), dest_path.string());
             final_path = dest_path;
             items->push_back(ExplorerItem{
                 .name = slint::SharedString(display_name),
@@ -69,17 +67,15 @@ void UIController::bind_ui_callbacks() {
     // ====================================================
     gui->on_open_nfd_files_selector([this]() {
         std::cout << "Add Files - button clicked" << std::endl;
-        // std::vector<unsigned char> myKey(crypto_secretstream_xchacha20poly1305_KEYBYTES, 0); 
-
         fs::path seboxAppDataDir = getAppDataDirectory();
-        std::vector<std::string> files = this->picker.pick_files();
+        std::vector<std::string> files = this->file_service.select_and_copy_files();
         if(!files.empty()) {
             for (const auto& pathStr : files) {
                 fs::path source = pathStr;
                 fs::path destination = seboxAppDataDir / (source.filename().string() + ".enc");
                 
                 // 2. Use the encryptor instead of fs::copy
-                if (this->encryptor.encrypt_file(source, destination)) {
+                if (this->file_service.encrypt_and_copy_file(source.string(), destination.string())) {
                     std::cout << "Successfully encrypted: " << source.filename() << std::endl;
                 } else {
                     std::cerr << "Failed to encrypt: " << source.filename() << std::endl;
@@ -108,10 +104,10 @@ void UIController::bind_ui_callbacks() {
     });
     */
     // ====================================================
-    gui->on_open_file([this](slint::SharedString path) {
+    gui->on_view_file([this](slint::SharedString path) {
         std::string file_path = std::string(path);
         std::cout << "Opening file: " << file_path << '\n';
-        this->explorer.open_file(file_path);
+        this->file_service.view_file(file_path);
     });
     // ====================================================
     gui->on_login_submitted([this](slint::SharedString user_input) {
@@ -127,10 +123,10 @@ void UIController::bind_ui_callbacks() {
         if (!out) {
             throw std::runtime_error("Failed to create password file");
         }
-        out << hashed_password;   // or out.write(...)
+        out << hashed_password;
         out.close();
 
-        // gui->set_is_authenticated(true);
+        gui->set_is_authenticated(true);
     });
     // ====================================================
 }

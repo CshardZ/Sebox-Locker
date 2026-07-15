@@ -4,9 +4,7 @@
 #pragma once
 #include <slint.h>
 #include "index.h"
-#include "core/include/file_picker.h"
-#include "core/include/file_explorer.h"
-#include "core/include/file_encryptor.h"
+#include "core/include/file_service.h"
 
 
 class UIController {
@@ -15,9 +13,7 @@ class UIController {
         ~UIController();
         void bind_ui_callbacks();
         void refresh_explorer();
-
         slint::ComponentHandle<RootWindow> gui;
-        FilePicker picker;
-        FileExplorer explorer;
-        FileEncryptor encryptor;
+
+        FileService file_service;
 };
