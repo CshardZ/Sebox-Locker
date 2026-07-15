@@ -1,0 +1,29 @@
+// ----------------------------------------------
+// PButton: Primary Button for app
+// ----------------------------------------------
+import { Theme } from "../config/theme.slint";
+
+
+export component PButton inherits Rectangle {
+    height: 50px;
+    background: #bffbd2;
+    border-radius: 5px;
+    border-width: 2px;
+    border-color: green;
+
+    in property <string> label: "PButton";
+    callback clicked();
+    
+    Text {
+        text: root.label;
+        color: Theme.text-color-2;
+        vertical-alignment: center;
+        horizontal-alignment: center;
+    }
+
+    TouchArea {
+        clicked => {
+            root.clicked();
+        }
+    }
+}

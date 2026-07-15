@@ -1,17 +1,48 @@
-import { VerticalBox } from "std-widgets.slint";
+import "config/fonts/Outfit-Variable.ttf";
 
-export component HelloWorld inherits Window {
-    width: 400px;
-    height: 300px;
-    title: "Hello Slint";
+import { Header } from "layout/Header.slint";
+import { Sidebar } from "layout/Sidebar.slint";
+import { Content } from "layout/Content.slint";
+import { ExplorerItem } from "models.slint";
 
-    VerticalBox {
-        alignment: center;
 
-        Text {
-            text: "Hello, World!";
-            font-size: 32px;
-            horizontal-alignment: center;
+export component RootWindow inherits Window {
+    default-font-family: "Outfit";
+    default-font-size: 16px;
+    default-font-weight: 600;
+    
+    // Component styles
+    title: "Sebox Locker"; 
+    min-width: 800px;
+    min-height: 500px;
+    background: yellow;
+ 
+    // File Picker
+    callback open_nfd_files_selector();
+    callback open_nfd_folder_selector();
+ 
+    // File Explorer
+    in property <[ExplorerItem]> explorer_items;
+
+
+    VerticalLayout {
+        Header {
+            height: 80px;
+        }
+
+        HorizontalLayout {
+            Sidebar {
+                width: 300px;
+                vertical-stretch: 1; 
+                add_files => { root.open_nfd_files_selector(); }
+                add_folder => { root.open_nfd_folder_selector(); }
+            }
+
+            Content {
+                horizontal-stretch: 1;
+                vertical-stretch: 1;
+                explorer_items: root.explorer_items;
+            }
         }
     }
 }
