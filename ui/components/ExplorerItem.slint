@@ -1,3 +1,6 @@
+// ----------------------------------------------
+// - Invidual ui component for file/folder item in explorer
+// ----------------------------------------------
 import { Theme } from "../config/theme.slint";
 import { DividerLine } from "./DividerLine.slint";
 
@@ -14,7 +17,7 @@ export component ExplorerItem inherits Rectangle {
     background: touch.pressed ? #d1e7dd : #ffffff;
 
     touch := TouchArea {
-        clicked => { root.clicked(path); }
+        double-clicked => { root.clicked(path); }
     }
 
     HorizontalLayout {

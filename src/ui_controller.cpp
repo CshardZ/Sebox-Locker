@@ -50,6 +50,7 @@ void UIController::bind_ui_callbacks() {
             }
         }
         std::cout<<"Files Have been copied to appdata directory"<<std::endl;
+        this->refresh_explorer();
     });
     // ====================================================
     gui->on_open_nfd_folder_selector([this]() {
@@ -64,6 +65,7 @@ void UIController::bind_ui_callbacks() {
             );
         }
         std::cout<<"Folder has been copied to appdata directory"<<std::endl;
+        this->refresh_explorer();
     });
     // ====================================================
     gui->on_open_file([this](slint::SharedString path) {
