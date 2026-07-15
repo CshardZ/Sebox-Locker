@@ -8,6 +8,6 @@
 
 class FilePicker {
     public:
-        std::vector<std::string> pickFiles();
-        std::string pickFolder();
+        std::vector<std::string> pick_files();
+        std::string pick_folder();
 };

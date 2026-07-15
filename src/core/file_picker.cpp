@@ -2,12 +2,12 @@
 #include <vector>
 #include <string>
 #include <iostream>
-#include "file_picker.h"
+#include "include/file_picker.h"
 
 using namespace std;
 
 
-vector<string> FilePicker::pickFiles() {
+vector<string> FilePicker::pick_files() {
     NFD_Init();
     vector<string> files; 
     
@@ -36,7 +36,7 @@ vector<string> FilePicker::pickFiles() {
 }
 
 
-string FilePicker::pickFolder() {
+string FilePicker::pick_folder() {
     NFD_Init();
     std::string folder;
 

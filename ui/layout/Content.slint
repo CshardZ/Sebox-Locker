@@ -1,11 +1,21 @@
-import { Theme } from "../config/theme.slint";
+import { ListView } from "std-widgets.slint";
+import { ExplorerItem } from "../components/ExplorerItem.slint";
+import { ExplorerItem } from "../models.slint";
+
 
 
 export component Content inherits Rectangle {
+    in property <[ExplorerItem]> explorer_items: [];
     background: #EEF5EF;
 
-    Text {
-        text: "Locker is Empty";
-        color: Theme.text-color-1;
+    VerticalLayout {
+        padding: 10px;
+        
+        ListView {
+            for item in explorer_items : ExplorerItem {
+                name: item.name;
+                is_directory: item.is_directory;
+            }
+        }
     }
 }

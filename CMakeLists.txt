@@ -11,7 +11,8 @@ project(
 add_executable( 
 	Sebox
 	src/main.cpp
-	src/file/file_picker.cpp
+	src/core/file_picker.cpp
+	src/core/file_explorer.cpp
 )
 
 # --- CPM executable path

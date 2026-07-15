@@ -1,0 +1,44 @@
+import { Theme } from "../config/theme.slint";
+import { DividerLine } from "./DividerLine.slint";
+
+
+export component ExplorerItem inherits Rectangle {
+    in property <string> name;
+    in property <bool> is_directory;
+    in property <image> thumbnail;
+
+    height: 60px;
+    border-radius: 5px;
+    background: touch.pressed ? #d1e7dd : #ffffff;
+    
+    touch := TouchArea { } // takes parent full dims by default
+
+    HorizontalLayout {
+        padding: 10px;
+        spacing: 20px;
+
+        VerticalLayout {
+            alignment: center;
+            if root.is_directory : Image {
+                source: @image-url("../../assets/icons/folder-open-icon.png");
+                width: 24px;
+                height: 24px;
+            }
+            if !root.is_directory : Image {
+                source: @image-url("../../assets/icons/file-icon.png");
+                width: 24px;
+                height: 24px;
+            }
+        }
+
+        Text {
+            text: root.name;
+            color: Theme.text-color-1;
+            vertical-alignment: center;
+        }
+    }
+
+    DividerLine {
+        y: parent.height - 1px;
+    }
+}

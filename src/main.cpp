@@ -1,7 +1,9 @@
 #include <iostream>
+#include <slint.h>
 
 #include <index.h>
-#include "file/file_picker.h"
+#include "core/include/file_picker.h"
+#include "core/include/file_explorer.h"
 
 #include <filesystem>
 #include <string>
@@ -49,7 +51,7 @@ int main() {
     ui->on_open_nfd_files_selector([&picker]() {
         std::cout << "Add Files - button clicked" << std::endl;
         fs::path seboxAppDataDir = GetAppStorageDir(); // create and/or get
-        std::vector<std::string> files = picker.pickFiles();
+        std::vector<std::string> files = picker.pick_files();
         if(!files.empty()) {
             for (const auto& pathStr : files) {
                 fs::path source = pathStr;
@@ -62,7 +64,7 @@ int main() {
     ui->on_open_nfd_folder_selector([&picker]() {
         std::cout <<"Add Folder - button clicked" << std::endl;
         fs::path seboxAppDataDir = GetAppStorageDir(); // create and/or get
-        std::string folder = picker.pickFolder();
+        std::string folder = picker.pick_folder();
         if(!folder.empty()) {
             fs::path source = folder;
             fs::copy(
@@ -72,6 +74,18 @@ int main() {
         }
         std::cout<<"Folder has been copied to appdata directory"<<std::endl;
     });
+
+    // File explorer first view
+    FileExplorer explorer;
+    auto explorer_items = explorer.list_directory(GetAppStorageDir());
+    auto items = std::make_shared<slint::VectorModel<ExplorerItem>>();
+    for (const auto& item : explorer_items) {
+        items->push_back(ExplorerItem{
+            .name = slint::SharedString(item.name),
+            .is_directory = item.is_directory
+        });
+    }
+    ui->set_explorer_items(items);
 
     ui->run(); 
 
