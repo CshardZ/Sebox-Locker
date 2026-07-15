@@ -35,3 +35,17 @@ fs::path getAppDataDirectory() {
     std::cout <<"Created/Retrieved App data path: " << seboxAppDataDir << std::endl;
     return seboxAppDataDir;
 }
+
+void cleanupTempDirectory() {
+    namespace fs = std::filesystem;
+    fs::path temp_dir = getAppDataDirectory() / "temp";
+
+    if (fs::exists(temp_dir)) {
+        std::error_code ec;
+        if (fs::remove_all(temp_dir, ec)) {
+            std::cout << "Successfully cleaned temp directory." << std::endl;
+        } else if (ec) {
+            std::cerr << "Error cleaning temp directory: " << ec.message() << std::endl;
+        }
+    }
+}

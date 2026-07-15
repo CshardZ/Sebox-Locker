@@ -6,6 +6,7 @@
 
 #include <index.h>
 #include "include/ui_controller.h"
+#include "include/utils.h"
 
 
 int main() {
@@ -16,5 +17,6 @@ int main() {
     controller.refresh_explorer(); // Initial load
 
     gui->run(); 
+    cleanupTempDirectory();
     return 0;
 }

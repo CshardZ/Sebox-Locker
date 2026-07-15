@@ -4,4 +4,6 @@
 #pragma once
 #include <filesystem>
 
+
 std::filesystem::path getAppDataDirectory();
+void cleanupTempDirectory();
