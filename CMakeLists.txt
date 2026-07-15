@@ -13,6 +13,8 @@ add_executable(
 	src/main.cpp
 	src/core/file_picker.cpp
 	src/core/file_explorer.cpp
+  src/utils.cpp
+  src/ui_controller.cpp
 )
 
 # --- CPM executable path
