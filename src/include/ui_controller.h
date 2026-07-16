@@ -9,11 +9,11 @@
 
 class UIController {
     public:
-        UIController(slint::ComponentHandle<RootWindow> gui, bool is_first_startup);
+        UIController(slint::ComponentHandle<RootWindow> gui, bool is_first_startup, FileService& fs);
         ~UIController();
         void bind_ui_callbacks();
         void refresh_explorer();
         slint::ComponentHandle<RootWindow> gui;
 
-        FileService file_service;
+        FileService& file_service;
 };

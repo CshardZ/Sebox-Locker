@@ -6,20 +6,12 @@
 #include <filesystem>
 #include <string>
 #include <vector>
+#include <sodium.h>
 #include "core/include/file_service.h"
 #include "core/include/core_utils.h"
 
 namespace fs = std::filesystem;
 using namespace std;
-
-
-// TODO: not here
-std::vector<unsigned char> tempKeyhere = { // TODO - not here
-    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
-    17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32
-};
-
-FileService file_service(tempKeyhere);
 
 
 bool ensure_default_directories() {
@@ -30,7 +22,7 @@ bool ensure_default_directories() {
     
     vector<fs::path> paths_to_create = {
         sebox_data_folder,
-        sebox_data_folder / "auth",
+        sebox_data_folder / "keys",
         user_data_folder / "decrypted",
         // user_data_folder / "encrypted", // will be re-created on every app termination with updated data
         user_data_folder / "backup"
@@ -45,7 +37,7 @@ bool ensure_default_directories() {
 }
 
 
-void save_updates_to_encrypted_folder() {
+void save_updates_to_encrypted_folder(FileService& file_service) {
     fs::path root = get_app_data_path() / "User-Data";
     fs::path enc_dir = root / "encrypted";
     fs::path dec_dir = root / "decrypted";
@@ -64,9 +56,11 @@ void save_updates_to_encrypted_folder() {
 }
 
 
-void terminate_and_clear_temp_data() {
+void terminate_and_clear_temp_data(FileService& file_service) {
+    std::cout<<"\n\n\ APp cleanup in progress...."<<std::endl;
     fs::path root = get_app_data_path() / "User-Data";
     fs::path dec_dir = root / "decrypted";
-    save_updates_to_encrypted_folder();
+    save_updates_to_encrypted_folder(file_service);
     delete_directory(dec_dir.string());
+    std::cout<<"\n\n\ APp cleanup in complete...."<<std::endl;
 }
