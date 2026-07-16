@@ -9,7 +9,7 @@ namespace fs = std::filesystem;
 using namespace std;
 
 
-fs::path getAppDataDirectory() {
+fs::path get_app_data_path() {
     // Create and/or Get
     // platform specific Sebox app data directory path
     fs::path base;
@@ -37,8 +37,8 @@ fs::path getAppDataDirectory() {
     return seboxAppDataDir;
 }
 
-void cleanupTempDirectory() {
-    fs::path temp_dir = getAppDataDirectory() / "temp";
+void delete_decrypted_files_directory() {
+    fs::path temp_dir = get_app_data_path() / "decrypted";
     if (fs::exists(temp_dir)) {
         error_code ec;
         if (fs::remove_all(temp_dir, ec)) {
@@ -47,4 +47,29 @@ void cleanupTempDirectory() {
             cerr << "Error cleaning temp directory: " << ec.message() << endl;
         }
     }
+}
+
+
+bool ensure_default_directories() {
+    fs::path sebox_folder = get_app_data_path();
+    fs::path sebox_data_folder = sebox_folder / "Sebox-Data";
+    fs::path user_data_folder = sebox_folder / "User-Data";
+    bool is_first_startup = !fs::exists(sebox_data_folder);
+
+    std::vector<fs::path> paths_to_create = {
+        sebox_data_folder,
+        user_data_folder / "decrypted",
+        user_data_folder / "encrypted",
+        user_data_folder / "backup"
+    };
+
+    for (const auto& path : paths_to_create) {
+        if (!fs::exists(path)) {
+            fs::create_directories(path);
+        }
+    }
+
+    cout<<"is_first_startup: " << is_first_startup <<endl;
+
+    return is_first_startup;
 }

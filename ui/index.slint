@@ -2,15 +2,15 @@ import "config/fonts/Outfit-Variable.ttf";
 import { Header } from "layout/Header.slint";
 import { Sidebar } from "layout/Sidebar.slint";
 import { Content } from "layout/Content.slint";
-import { LoginPrompt } from "components/LoginPrompt.slint";
+import { AuthForm } from "components/AuthForm.slint";
 import { ExplorerItem } from "models.slint";
 
-
+ 
 export component RootWindow inherits Window {
     default-font-family: "Outfit";
-    default-font-size: 16px;
     default-font-weight: 600;
-    
+    default-font-size: 16px; 
+     
     // Component styles
     title: "Sebox Locker"; 
     min-width: 800px;
@@ -18,7 +18,9 @@ export component RootWindow inherits Window {
     background: #EEF5EF;
     
     // Authentication
+    in-out property <bool> is_first_startup: false;
     in-out property <bool> is_authenticated: false;
+    callback password_created(string);
     callback login_submitted(string);
 
     // File Picker
@@ -36,9 +38,10 @@ export component RootWindow inherits Window {
 
         if (!is_authenticated) : HorizontalLayout {
             alignment: center;
-            
-            LoginPrompt {
+            AuthForm {
+                is_first_startup: root.is_first_startup;
                 login_submitted(password_input) => { root.login_submitted(password_input); }
+                password_created(password_input) => { root.password_created(password_input); }
             }
         }
 

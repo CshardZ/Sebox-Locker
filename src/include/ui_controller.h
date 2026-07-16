@@ -9,7 +9,7 @@
 
 class UIController {
     public:
-        UIController(slint::ComponentHandle<RootWindow> gui);
+        UIController(slint::ComponentHandle<RootWindow> gui, bool is_first_startup);
         ~UIController();
         void bind_ui_callbacks();
         void refresh_explorer();

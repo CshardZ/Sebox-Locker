@@ -20,9 +20,8 @@ std::vector<unsigned char> tempKey = { // TODO - not here
 
 
 // Constructor
-UIController::UIController(slint::ComponentHandle<RootWindow> gui) : gui(gui), file_service(tempKey) {
-    // Used intializer list
-    // Body Empty
+UIController::UIController(slint::ComponentHandle<RootWindow> gui, bool is_first_startup) : gui(gui), file_service(tempKey) {
+    this->gui->set_is_first_startup(is_first_startup);
 }
 // Destructor
 UIController::~UIController() {}
@@ -30,9 +29,9 @@ UIController::~UIController() {}
 
 void UIController::refresh_explorer() {
     namespace fs = std::filesystem;
-    cleanupTempDirectory();
-    fs::path base_path = getAppDataDirectory();
-    fs::path temp_dir = base_path / "temp";
+    delete_decrypted_files_directory();
+    fs::path base_path = get_app_data_path();
+    fs::path temp_dir = base_path / "User-Data" / "decrypted";
     
     if (!fs::exists(temp_dir)) {
         fs::create_directories(temp_dir);
@@ -67,7 +66,7 @@ void UIController::bind_ui_callbacks() {
     // ====================================================
     gui->on_open_nfd_files_selector([this]() {
         std::cout << "Add Files - button clicked" << std::endl;
-        fs::path seboxAppDataDir = getAppDataDirectory();
+        fs::path seboxAppDataDir = get_app_data_path();
         std::vector<std::string> files = this->file_service.select_and_copy_files();
         if(!files.empty()) {
             for (const auto& pathStr : files) {
@@ -90,7 +89,7 @@ void UIController::bind_ui_callbacks() {
     /*
     gui->on_open_nfd_folder_selector([this]() {
         std::cout <<"Add Folder - button clicked" << std::endl;
-        fs::path seboxAppDataDir = getAppDataDirectory();
+        fs::path seboxAppDataDir = get_app_data_path();
         std::string folder = this->picker.pick_folder();
         if(!folder.empty()) {
             fs::path source = folder;
@@ -110,6 +109,24 @@ void UIController::bind_ui_callbacks() {
         this->file_service.view_file(file_path);
     });
     // ====================================================
+    gui->on_password_created([this](slint::SharedString user_input) {
+        std::string password = std::string(user_input);
+        std::cout << "Password Submitted: " << password << '\n';
+        std::string hashed_password = AuthService::hash_password(password);
+        std::cout << "Hashed Password: " << hashed_password << '\n';
+        // create a file -> store password -> encrypt file : required for password verification on next login
+        fs::path seboxAppDataDir = get_app_data_path();
+        fs::path passwordFile = seboxAppDataDir / "hashed_password.txt";
+        std::ofstream out(passwordFile, std::ios::binary);
+        if (!out) {
+            throw std::runtime_error("Failed to create password file");
+        }
+        out << hashed_password;
+        out.close();
+        gui->set_is_first_startup(false);
+        gui->set_is_authenticated(false);
+    });
+    // ====================================================
     gui->on_login_submitted([this](slint::SharedString user_input) {
         std::string password = std::string(user_input);
         std::cout << "Password Submitted: " << password << '\n';
@@ -117,7 +134,7 @@ void UIController::bind_ui_callbacks() {
         std::cout << "Hashed Password: " << hashed_password << '\n';
 
         // create a file -> store password -> encrypt file : required for password verification on next login
-        fs::path seboxAppDataDir = getAppDataDirectory();
+        fs::path seboxAppDataDir = get_app_data_path();
         fs::path passwordFile = seboxAppDataDir / "hashed_password.txt";
         std::ofstream out(passwordFile, std::ios::binary);
         if (!out) {
