@@ -98,22 +98,13 @@ void UIController::bind_ui_callbacks() {
         this->refresh_explorer();
     });
     // ====================================================
-    /*
     gui->on_open_nfd_folder_selector([this]() {
-        std::cout <<"Add Folder - button clicked" << std::endl;
-        fs::path seboxAppDataDir = get_app_data_path();
-        std::string folder = this->picker.pick_folder();
-        if(!folder.empty()) {
-            fs::path source = folder;
-            fs::copy(
-                source, seboxAppDataDir / source.filename(), 
-                fs::copy_options::recursive | fs::copy_options::overwrite_existing
-            );
-        }
-        std::cout<<"Folder has been copied to appdata directory"<<std::endl;
-        this->refresh_explorer();
+        std::string folder_path = this->file_service.select_and_copy_folder(); // TODO: doesnt copy - refactor file_service method name
+        fs::path sebox_root_folder = get_app_data_path();
+        fs::path user_decrypted_folder = sebox_root_folder / "User-Data" / "decrypted";
+        fs::path backup_path(folder_path);
+        create_backup(user_decrypted_folder.string(), backup_path.string());
     });
-    */
     // ====================================================
     gui->on_view_file([this](slint::SharedString path) {
         std::string file_path = std::string(path);

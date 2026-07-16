@@ -26,7 +26,7 @@ export component RootWindow inherits Window {
 
     // File Picker
     callback open_nfd_files_selector();
-    // callback open_nfd_folder_selector();
+    callback open_nfd_folder_selector(); // used only for selecting export backup path
  
     // File Explorer
     in property <[ExplorerItem]> explorer_items;
@@ -52,7 +52,7 @@ export component RootWindow inherits Window {
                 width: 300px;
                 vertical-stretch: 1; 
                 add_files => { root.open_nfd_files_selector(); }
-                // add_folder => { root.open_nfd_folder_selector(); }
+                select_backup_path => { root.open_nfd_folder_selector(); }
             }
 
             Content {
