@@ -16,7 +16,7 @@
 namespace fs = std::filesystem;
 using namespace std;
 
-
+// TODO: remove string and fs::path conversion for interchanging paths - choose any one of them
 // ================================================================================================
 FileService::FileService(const vector<unsigned char>& key) {
     if (sodium_init() < 0)
@@ -199,6 +199,7 @@ bool FileService::encrypt_and_copy_file(const string& source, const string& dest
         out.write((char*)encrypted, out_len);
     }
 
+    cout<<"encrypted file to: "<<destination<<endl;
     return true;
 }
 // ================================================================================================

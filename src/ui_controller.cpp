@@ -10,54 +10,69 @@
 
 #include "core/include/file_service.h"
 #include "core/include/auth_service.h"
-#include "include/utils.h"
+#include "core/include/core_utils.h"
 
 namespace fs = std::filesystem;
 
 
+// TODO: use std namespace and remove all std:: prefixes
+// ================================================================================================
 std::vector<unsigned char> tempKey = { // TODO - not here
     1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
     17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32
 };
 
-
 // Constructor
 UIController::UIController(slint::ComponentHandle<RootWindow> gui, bool is_first_startup) : gui(gui), file_service(tempKey) {
     this->gui->set_is_first_startup(is_first_startup);
 }
+
 // Destructor
 UIController::~UIController() {}
+// ================================================================================================
 
 
+
+
+// ================================================================================================
 void UIController::refresh_explorer() {
-    delete_decrypted_files_directory();
-    create_decrypted_files_directory();
-    fs::path sebox_root_folder = get_app_data_path();
-    fs::path user_decrypted_folder = sebox_root_folder / "User-Data" / "decrypted";
-    fs::path user_encrypted_folder = sebox_root_folder / "User-Data" / "encrypted";
+    fs::path root = get_app_data_path() / "User-Data";
+    fs::path enc_dir = root / "encrypted";
+    fs::path dec_dir = root / "decrypted";
 
-    auto explorer_items = file_service.get_directory_contents(user_encrypted_folder.string());
     auto items = std::make_shared<slint::VectorModel<ExplorerItem>>();
-    
-    for (const auto& item : explorer_items) {
-        fs::path source_path = user_encrypted_folder / item.name;
-        fs::path final_path;
-        std::string display_name = item.name;
+    bool decrypting = fs::is_directory(enc_dir);
+    fs::path source_dir = decrypting ? enc_dir : dec_dir;
 
-        if (!item.is_directory) {
-            display_name = fs::path(item.name).stem().string(); // .stem() to remove .enc last extension
-            fs::path dest_path = user_decrypted_folder / display_name;
-            file_service.decrypt_and_copy_file(source_path.string(), dest_path.string());
-            final_path = dest_path;
-            items->push_back(ExplorerItem{
-                .name = slint::SharedString(display_name),
-                .is_directory = item.is_directory,
-                .path = slint::SharedString(final_path.string())
-            });
+    auto explorer_items = file_service.get_directory_contents(source_dir.string());
+
+    for (const auto& item : explorer_items) {
+        if (item.is_directory) continue;
+
+        fs::path final_path = source_dir / item.name;
+        std::string display_name = fs::path(item.name).stem().string();
+
+        if (decrypting) {
+            final_path = dec_dir / display_name;
+            file_service.decrypt_and_copy_file((source_dir / item.name).string(), final_path.string());
         }
+
+        items->push_back(ExplorerItem{
+            .name = slint::SharedString(display_name),
+            .is_directory = item.is_directory,
+            .path = slint::SharedString(final_path.string())
+        });
     }
+
+    if (decrypting) {
+        delete_directory(enc_dir.string());
+    }
+
     gui->set_explorer_items(items);
 }
+// ================================================================================================
+
+
 
 
 // ================================================================================================
@@ -66,23 +81,17 @@ void UIController::bind_ui_callbacks() {
     gui->on_open_nfd_files_selector([this]() {
         std::cout << "Add Files - button clicked" << std::endl;
         fs::path sebox_root_folder = get_app_data_path();
-        fs::path user_encrypted_folder = sebox_root_folder / "User-Data" / "encrypted";
+        fs::path user_decrypted_folder = sebox_root_folder / "User-Data" / "decrypted";
         std::vector<std::string> files = this->file_service.select_and_copy_files();
         if(!files.empty()) {
             for (const auto& pathStr : files) {
                 fs::path source = pathStr;
-                fs::path destination = user_encrypted_folder / (source.filename().string() + ".enc");
-                
-                // 2. Use the encryptor instead of fs::copy
-                if (this->file_service.encrypt_and_copy_file(source.string(), destination.string())) {
-                    std::cout << "Successfully encrypted: " << source.filename() << std::endl;
-                } else {
-                    std::cerr << "Failed to encrypt: " << source.filename() << std::endl;
-                }
+                fs::path destination = user_decrypted_folder / (source.filename().string());
+                fs::copy(source, destination);
             }
         }
         
-        std::cout << "Processing complete." << std::endl;
+        std::cout << "File Dialog Processing complete. \n\n" << std::endl;
         this->refresh_explorer();
     });
     // ====================================================

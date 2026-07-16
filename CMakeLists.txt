@@ -17,7 +17,8 @@ add_executable(
     Sebox
     src/core/file_service.cpp
     src/core/auth_service.cpp
-    src/utils.cpp
+    src/core/core_utils.cpp
+    src/app_utils.cpp
     src/ui_controller.cpp
     src/main.cpp
 )

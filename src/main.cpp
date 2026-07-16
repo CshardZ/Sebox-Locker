@@ -1,7 +1,8 @@
 #include <index.h>
-#include "include/ui_controller.h"
-#include "include/utils.h"
 #include<iostream>
+
+#include "include/app_utils.h"
+#include "include/ui_controller.h"
 
 
 int main() {
@@ -9,12 +10,12 @@ int main() {
     
     auto gui = RootWindow::create();
     UIController controller(gui, is_first_startup);
-    std::cout<<"Passed main is_first_startup: " << is_first_startup <<std::endl;
     
     controller.bind_ui_callbacks();
     controller.refresh_explorer();
 
     gui->run(); 
-    delete_decrypted_files_directory();
+
+    terminate_and_clear_temp_data();
     return 0;
 }
