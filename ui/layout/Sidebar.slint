@@ -2,7 +2,7 @@ import { PButton } from "../components/PButton.slint";
 
 export component Sidebar inherits Rectangle {
     callback add_files();
-    callback add_folder();
+    // callback add_folder();
 
     background: #19362B;
     
@@ -10,15 +10,17 @@ export component Sidebar inherits Rectangle {
         padding: 20px;
         spacing: 4pt;
         alignment: start;
+        
         PButton {
             label: "Add Files";
             clicked => { add_files(); }
         }
-
+        /* 
         PButton {
             label: "Add Folder";
             clicked => { add_folder(); }
         }
+        */
         
         // Just to fill the remaining empty space
         Rectangle { vertical-stretch: 1; }

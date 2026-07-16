@@ -39,3 +39,6 @@ build
 
 # Gradle / Android build outputs
 .gradle
+
+# vcpkg manifest package installed
+vcpkg_installed/

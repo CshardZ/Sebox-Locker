@@ -1,47 +1,65 @@
 import "config/fonts/Outfit-Variable.ttf";
-
 import { Header } from "layout/Header.slint";
 import { Sidebar } from "layout/Sidebar.slint";
 import { Content } from "layout/Content.slint";
+import { AuthForm } from "components/AuthForm.slint";
 import { ExplorerItem } from "models.slint";
 
-
+ 
 export component RootWindow inherits Window {
     default-font-family: "Outfit";
-    default-font-size: 16px;
     default-font-weight: 600;
-    
+    default-font-size: 16px; 
+     
     // Component styles
     title: "Sebox Locker"; 
     min-width: 800px;
     min-height: 500px;
-    background: yellow;
- 
+    background: #EEF5EF;
+    
+    // Authentication
+    in-out property <bool> is_first_startup: false;
+    in-out property <bool> is_authenticated: false;
+    in-out property <string> password_placeholder: "Enter Password";
+    callback password_created(string);
+    callback login_submitted(string);
+
     // File Picker
     callback open_nfd_files_selector();
-    callback open_nfd_folder_selector();
+    // callback open_nfd_folder_selector();
  
     // File Explorer
     in property <[ExplorerItem]> explorer_items;
-
+    callback view_file(string);
 
     VerticalLayout {
         Header {
             height: 80px;
         }
 
-        HorizontalLayout {
+        if (!is_authenticated) : HorizontalLayout {
+            alignment: center;
+            AuthForm {
+                is_first_startup: root.is_first_startup;
+                password_placeholder: root.password_placeholder;
+                login_submitted(password_input) => { root.login_submitted(password_input); }
+                password_created(password_input) => { root.password_created(password_input); }
+            }
+        }
+
+        if(is_authenticated) : HorizontalLayout {
             Sidebar {
                 width: 300px;
                 vertical-stretch: 1; 
                 add_files => { root.open_nfd_files_selector(); }
-                add_folder => { root.open_nfd_folder_selector(); }
+                // add_folder => { root.open_nfd_folder_selector(); }
             }
 
             Content {
                 horizontal-stretch: 1;
                 vertical-stretch: 1;
                 explorer_items: root.explorer_items;
+                view_file(filepath) => {root.view_file(filepath); }
             }
         }
     }

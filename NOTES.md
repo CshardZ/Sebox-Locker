@@ -11,3 +11,6 @@
 
 # Notes
 - Cmake -> CMakeLists.txt -> CPM.cmake -> MSVC compiler
+- KDF: key derivation function
+- High entrophy - encryption
+- Low entrophy - user passwords

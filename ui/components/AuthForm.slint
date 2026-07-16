@@ -1,0 +1,89 @@
+import { Theme } from "../config/theme.slint";
+import { LineEdit } from "std-widgets.slint";
+import { PButton } from "../components/PButton.slint";
+
+
+export component AuthForm {
+    in-out property <string> password_input;
+    in-out property <string> password_placeholder;
+    in property <bool> is_first_startup; 
+    callback login_submitted(string);
+    callback password_created(string);
+
+    Rectangle {
+        width:300px; 
+        height: 300px; 
+        background: #19362B;
+        border-radius: 5px;
+
+        // Create Password Form
+        if (is_first_startup) : VerticalLayout {
+            alignment: center;
+            spacing: 20px;
+            padding: 30px;
+
+            Text {
+                text: "Setup Sebox";
+                color: Theme.text-color-3;
+                font-size: 18px;
+                font-weight: 600;
+                horizontal-alignment: center;
+            }
+
+            LineEdit {
+                placeholder-text: root.password_placeholder;
+                input-type: password;
+                horizontal-alignment: center;
+
+                text <=> password_input;
+                accepted(text) => {
+                    root.password_created(root.password_input);
+                    password_input = "";
+                }
+            }
+
+            PButton {
+                label: "Confirm";
+                clicked => { 
+                    root.password_created(root.password_input);
+                    password_input = "";
+                }
+            }
+        }
+
+        // Login Form
+        if (!is_first_startup) : VerticalLayout {
+            alignment: center;
+            spacing: 20px;
+            padding: 30px;
+
+            Text {
+                text: "Unlock Sebox";
+                color: Theme.text-color-3;
+                font-size: 18px;
+                font-weight: 600;
+                horizontal-alignment: center;
+            }
+
+            LineEdit {
+                placeholder-text: root.password_placeholder;
+                input-type: password;
+                horizontal-alignment: center;
+
+                text <=> password_input;
+                accepted(text) => {
+                    root.login_submitted(root.password_input);
+                    password_input = "";
+                }
+            }
+
+            PButton {
+                label: "Unlock";
+                clicked => { 
+                    root.login_submitted(root.password_input);
+                    password_input = "";
+                }
+            }
+        }
+    }
+}
