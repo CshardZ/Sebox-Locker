@@ -37,27 +37,32 @@ fs::path get_app_data_path() {
     return seboxAppDataDir;
 }
 
+void create_decrypted_files_directory() {
+    fs::path sebox_root_folder = get_app_data_path();
+    fs::path user_decrypted_folder = sebox_root_folder / "User-Data" / "decrypted";
+    if (!fs::exists(user_decrypted_folder)) {
+        fs::create_directories(user_decrypted_folder);
+    }
+}
+
 void delete_decrypted_files_directory() {
-    fs::path temp_dir = get_app_data_path() / "decrypted";
-    if (fs::exists(temp_dir)) {
-        error_code ec;
-        if (fs::remove_all(temp_dir, ec)) {
-            cout << "Successfully cleaned temp directory." << endl;
-        } else if (ec) {
-            cerr << "Error cleaning temp directory: " << ec.message() << endl;
-        }
+    fs::path sebox_root_folder = get_app_data_path();
+    fs::path user_decrypted_folder = sebox_root_folder / "User-Data" / "decrypted";
+    if (fs::exists(user_decrypted_folder)) {
+        fs::remove_all(user_decrypted_folder);
     }
 }
 
 
 bool ensure_default_directories() {
-    fs::path sebox_folder = get_app_data_path();
-    fs::path sebox_data_folder = sebox_folder / "Sebox-Data";
-    fs::path user_data_folder = sebox_folder / "User-Data";
+    fs::path sebox_root_folder = get_app_data_path();
+    fs::path sebox_data_folder = sebox_root_folder / "Sebox-Data";
+    fs::path user_data_folder = sebox_root_folder / "User-Data";
     bool is_first_startup = !fs::exists(sebox_data_folder);
 
     std::vector<fs::path> paths_to_create = {
         sebox_data_folder,
+        sebox_data_folder / "auth",
         user_data_folder / "decrypted",
         user_data_folder / "encrypted",
         user_data_folder / "backup"

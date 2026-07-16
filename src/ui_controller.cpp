@@ -2,6 +2,8 @@
 // - Main UI/GUI controller logic
 // ----------------------------------------------
 #include "include/ui_controller.h"
+#include <string>
+#include <vector>
 #include <fstream>
 #include <slint.h>
 #include "index.h"
@@ -28,26 +30,23 @@ UIController::~UIController() {}
 
 
 void UIController::refresh_explorer() {
-    namespace fs = std::filesystem;
     delete_decrypted_files_directory();
-    fs::path base_path = get_app_data_path();
-    fs::path temp_dir = base_path / "User-Data" / "decrypted";
-    
-    if (!fs::exists(temp_dir)) {
-        fs::create_directories(temp_dir);
-    }
+    create_decrypted_files_directory();
+    fs::path sebox_root_folder = get_app_data_path();
+    fs::path user_decrypted_folder = sebox_root_folder / "User-Data" / "decrypted";
+    fs::path user_encrypted_folder = sebox_root_folder / "User-Data" / "encrypted";
 
-    auto explorer_items = file_service.get_directory_contents(base_path.string());
+    auto explorer_items = file_service.get_directory_contents(user_encrypted_folder.string());
     auto items = std::make_shared<slint::VectorModel<ExplorerItem>>();
     
     for (const auto& item : explorer_items) {
-        fs::path source_path = base_path / item.name;
+        fs::path source_path = user_encrypted_folder / item.name;
         fs::path final_path;
         std::string display_name = item.name;
 
         if (!item.is_directory) {
-            display_name = fs::path(item.name).stem().string();
-            fs::path dest_path = temp_dir / display_name;
+            display_name = fs::path(item.name).stem().string(); // .stem() to remove .enc last extension
+            fs::path dest_path = user_decrypted_folder / display_name;
             file_service.decrypt_and_copy_file(source_path.string(), dest_path.string());
             final_path = dest_path;
             items->push_back(ExplorerItem{
@@ -66,12 +65,13 @@ void UIController::bind_ui_callbacks() {
     // ====================================================
     gui->on_open_nfd_files_selector([this]() {
         std::cout << "Add Files - button clicked" << std::endl;
-        fs::path seboxAppDataDir = get_app_data_path();
+        fs::path sebox_root_folder = get_app_data_path();
+        fs::path user_encrypted_folder = sebox_root_folder / "User-Data" / "encrypted";
         std::vector<std::string> files = this->file_service.select_and_copy_files();
         if(!files.empty()) {
             for (const auto& pathStr : files) {
                 fs::path source = pathStr;
-                fs::path destination = seboxAppDataDir / (source.filename().string() + ".enc");
+                fs::path destination = user_encrypted_folder / (source.filename().string() + ".enc");
                 
                 // 2. Use the encryptor instead of fs::copy
                 if (this->file_service.encrypt_and_copy_file(source.string(), destination.string())) {
@@ -105,45 +105,42 @@ void UIController::bind_ui_callbacks() {
     // ====================================================
     gui->on_view_file([this](slint::SharedString path) {
         std::string file_path = std::string(path);
-        std::cout << "Opening file: " << file_path << '\n';
         this->file_service.view_file(file_path);
     });
     // ====================================================
     gui->on_password_created([this](slint::SharedString user_input) {
         std::string password = std::string(user_input);
-        std::cout << "Password Submitted: " << password << '\n';
+        fs::path sebox_auth_folder = get_app_data_path() / "Sebox-Data" / "auth";
+        fs::path password_file = sebox_auth_folder / "hashed_password.txt";
+        fs::path password_file_encrypted = password_file;
+        password_file_encrypted += ".enc";
+
         std::string hashed_password = AuthService::hash_password(password);
-        std::cout << "Hashed Password: " << hashed_password << '\n';
-        // create a file -> store password -> encrypt file : required for password verification on next login
-        fs::path seboxAppDataDir = get_app_data_path();
-        fs::path passwordFile = seboxAppDataDir / "hashed_password.txt";
-        std::ofstream out(passwordFile, std::ios::binary);
-        if (!out) {
-            throw std::runtime_error("Failed to create password file");
-        }
-        out << hashed_password;
-        out.close();
+        std::vector<char> password_vector(hashed_password.begin(), hashed_password.end());
+        this->file_service.write_file(password_file.string(), password_vector);
+        this->file_service.encrypt_and_copy_file(password_file.string(), password_file_encrypted.string());
+        this->file_service.delete_file(password_file.string());
+        
         gui->set_is_first_startup(false);
         gui->set_is_authenticated(false);
     });
     // ====================================================
     gui->on_login_submitted([this](slint::SharedString user_input) {
         std::string password = std::string(user_input);
-        std::cout << "Password Submitted: " << password << '\n';
-        std::string hashed_password = AuthService::hash_password(password);
-        std::cout << "Hashed Password: " << hashed_password << '\n';
-
-        // create a file -> store password -> encrypt file : required for password verification on next login
-        fs::path seboxAppDataDir = get_app_data_path();
-        fs::path passwordFile = seboxAppDataDir / "hashed_password.txt";
-        std::ofstream out(passwordFile, std::ios::binary);
-        if (!out) {
-            throw std::runtime_error("Failed to create password file");
+        fs::path sebox_auth_folder = get_app_data_path() / "Sebox-Data" / "auth";
+        fs::path password_file = sebox_auth_folder / "hashed_password.txt";
+        fs::path password_file_encrypted = password_file;
+        password_file_encrypted += ".enc";
+        this->file_service.decrypt_and_copy_file(password_file_encrypted.string(), password_file.string());
+        std::vector<char> hashed_password_vector = this->file_service.read_file(password_file.string());
+        std::string hashed_password_string(hashed_password_vector.begin(), hashed_password_vector.end());
+        bool matched = AuthService::verify_password(password, hashed_password_string);
+        if(matched) {
+            gui->set_is_authenticated(true);
+        } else {
+            gui->set_password_placeholder("Wrong Password");
         }
-        out << hashed_password;
-        out.close();
-
-        gui->set_is_authenticated(true);
+        this->file_service.delete_file(password_file.string());
     });
     // ====================================================
 }

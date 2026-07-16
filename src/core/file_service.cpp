@@ -18,11 +18,11 @@ using namespace std;
 
 
 // ================================================================================================
-FileService::FileService(const std::vector<unsigned char>& key) {
+FileService::FileService(const vector<unsigned char>& key) {
     if (sodium_init() < 0)
-        throw std::runtime_error("libsodium could not be initialized.");
+        throw runtime_error("libsodium could not be initialized.");
     if (key.size() != crypto_secretstream_xchacha20poly1305_KEYBYTES)
-        throw std::invalid_argument("Invalid key size. Must be 32 bytes.");
+        throw invalid_argument("Invalid key size. Must be 32 bytes.");
     sodium_key = key;
 }
 
@@ -62,12 +62,12 @@ vector<string> FileService::select_and_copy_files() {
 // ================================================================================================
 string FileService::select_and_copy_folder() {
     NFD_Init();
-    std::string folder;
+    string folder;
     nfdu8char_t* outPath = nullptr;
     nfdresult_t result = NFD_PickFolderU8(&outPath, nullptr);
     
     if (result == NFD_OKAY) {
-        folder = std::string(outPath);
+        folder = string(outPath);
         cout << "Selected Folder: " << folder << endl;
         NFD_FreePathU8(outPath);
     }
@@ -81,8 +81,8 @@ string FileService::select_and_copy_folder() {
 
 
 // ================================================================================================
-std::vector<FileSystemEntry> FileService::get_directory_contents(const string& directory_path) {
-    std::vector<FileSystemEntry> items;
+vector<FileSystemEntry> FileService::get_directory_contents(const string& directory_path) {
+    vector<FileSystemEntry> items;
     fs::path path(directory_path);
 
     if (fs::exists(path) && fs::is_directory(path)) {
@@ -101,7 +101,7 @@ std::vector<FileSystemEntry> FileService::get_directory_contents(const string& d
 void FileService::view_file(const string& file_path) {
     /* Open file in system configured apps */
     fs::path path(file_path);
-    std::string command;
+    string command;
 
     #ifdef _WIN32
         // Windows: "start" command
@@ -114,7 +114,56 @@ void FileService::view_file(const string& file_path) {
         command = "xdg-open \"" + path.string() + "\"";
     #endif
 
-    std::system(command.c_str());
+    system(command.c_str());
+}
+// ================================================================================================
+void FileService::create_file(const string& file_path) {
+    fs::path path(file_path);
+    fs::create_directories(path.parent_path());
+    // Create an empty file
+    // ofstream creates the file if it doesn't exist
+    ofstream ofs(path);
+    cout <<"File created: " << file_path << endl;
+
+}
+// ================================================================================================
+void FileService::delete_file(const string& file_path) {
+    fs::path path(file_path);
+    // fs::remove returns true if the file existed and was removed
+    fs::remove(path);
+    cout <<"File deleted: " << file_path << endl;
+}
+// ================================================================================================
+vector<char> FileService::read_file(const string& filepath) {
+    ifstream file(filepath, ios::binary | ios::ate);
+    
+    if (!file.is_open()) {
+        cerr << "Could not open file for reading: " << filepath << endl;
+        return {};
+    }
+    streamsize size = file.tellg();
+    file.seekg(0, ios::beg);
+
+    vector<char> buffer(size);
+    if (file.read(buffer.data(), size)) {
+        return buffer;
+    }
+    return {};
+}
+
+// ================================================================================================
+void FileService::write_file(const string& filepath, const vector<char>& data) {
+    ofstream file(filepath, ios::binary);
+    
+    if (!file.is_open()) {
+        // Get the last system error
+        std::error_code ec = std::make_error_code(static_cast<std::errc>(errno));
+        std::cerr << "Failed to open: " << filepath 
+                << " | Error: " << ec.message() << std::endl;
+    }
+
+    file.write(data.data(), data.size());
+    file.close();
 }
 // ================================================================================================
 
@@ -125,8 +174,8 @@ void FileService::view_file(const string& file_path) {
 bool FileService::encrypt_and_copy_file(const string& source, const string& destination) {
     fs::path src_path(source);
     fs::path dst_path(destination);
-    std::ifstream in(src_path, std::ios::binary);
-    std::ofstream out(dst_path, std::ios::binary);
+    ifstream in(src_path, ios::binary);
+    ofstream out(dst_path, ios::binary);
 
     if (!in || !out) return false;
 
@@ -156,8 +205,8 @@ bool FileService::encrypt_and_copy_file(const string& source, const string& dest
 bool FileService::decrypt_and_copy_file(const string& source, const string& destination) {
     fs::path src_path(source);
     fs::path dst_path(destination);
-    std::ifstream in(src_path, std::ios::binary);
-    std::ofstream out(dst_path, std::ios::binary);
+    ifstream in(src_path, ios::binary);
+    ofstream out(dst_path, ios::binary);
 
     if (!in || !out) return false;
 

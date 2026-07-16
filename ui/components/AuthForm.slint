@@ -5,6 +5,7 @@ import { PButton } from "../components/PButton.slint";
 
 export component AuthForm {
     in-out property <string> password_input;
+    in-out property <string> password_placeholder;
     in property <bool> is_first_startup; 
     callback login_submitted(string);
     callback password_created(string);
@@ -30,7 +31,7 @@ export component AuthForm {
             }
 
             LineEdit {
-                placeholder-text: "New Password";
+                placeholder-text: root.password_placeholder;
                 input-type: password;
                 horizontal-alignment: center;
 
@@ -65,7 +66,7 @@ export component AuthForm {
             }
 
             LineEdit {
-                placeholder-text: "Enter Password";
+                placeholder-text: root.password_placeholder;
                 input-type: password;
                 horizontal-alignment: center;
 

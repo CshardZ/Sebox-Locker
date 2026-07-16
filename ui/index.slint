@@ -20,6 +20,7 @@ export component RootWindow inherits Window {
     // Authentication
     in-out property <bool> is_first_startup: false;
     in-out property <bool> is_authenticated: false;
+    in-out property <string> password_placeholder: "Enter Password";
     callback password_created(string);
     callback login_submitted(string);
 
@@ -40,6 +41,7 @@ export component RootWindow inherits Window {
             alignment: center;
             AuthForm {
                 is_first_startup: root.is_first_startup;
+                password_placeholder: root.password_placeholder;
                 login_submitted(password_input) => { root.login_submitted(password_input); }
                 password_created(password_input) => { root.password_created(password_input); }
             }

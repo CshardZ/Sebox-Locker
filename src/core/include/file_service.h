@@ -33,7 +33,9 @@ class FileService {
         bool decrypt_and_copy_file(const std::string& source, const std::string& destination);
 
         std::vector<FileSystemEntry> get_directory_contents(const std::string& directory_path);
-        bool create_file(const std::string& filepath);
+        void create_file(const std::string& filepath);
+        std::vector<char> read_file(const std::string& filepath);
+        void write_file(const std::string& filepath, const std::vector<char>& data);
         void view_file(const std::string& filePath);
-        bool delete_file(const std::string& filepath);
+        void delete_file(const std::string& filepath);
 };
