@@ -3,10 +3,15 @@ import { LineEdit } from "std-widgets.slint";
 import { PButton } from "../components/PButton.slint";
 
 
+
 export component AuthForm {
     in-out property <string> password_input;
     in-out property <string> password_placeholder;
     in property <bool> is_first_startup; 
+
+    in-out property <string> form_label_1: "Sebox Setup";
+    in-out property <string> form_label_2;
+
     callback login_submitted(string);
     callback password_created(string);
 
@@ -23,7 +28,7 @@ export component AuthForm {
             padding: 30px;
 
             Text {
-                text: "Setup Sebox";
+                text: root.form_label_1;
                 color: Theme.text-color-3;
                 font-size: 18px;
                 font-weight: 600;
@@ -34,10 +39,11 @@ export component AuthForm {
                 placeholder-text: root.password_placeholder;
                 input-type: password;
                 horizontal-alignment: center;
-
                 text <=> password_input;
+
                 accepted(text) => {
-                    root.password_created(root.password_input);
+                    form_label_1 = "Please Wait...";
+                    root.password_created(password_input);
                     password_input = "";
                 }
             }
@@ -45,6 +51,7 @@ export component AuthForm {
             PButton {
                 label: "Confirm";
                 clicked => { 
+                    form_label_1 = "Please Wait...";
                     root.password_created(root.password_input);
                     password_input = "";
                 }
@@ -58,7 +65,7 @@ export component AuthForm {
             padding: 30px;
 
             Text {
-                text: "Unlock Sebox";
+                text: root.form_label_2;
                 color: Theme.text-color-3;
                 font-size: 18px;
                 font-weight: 600;
@@ -69,10 +76,10 @@ export component AuthForm {
                 placeholder-text: root.password_placeholder;
                 input-type: password;
                 horizontal-alignment: center;
-
                 text <=> password_input;
+
                 accepted(text) => {
-                    root.login_submitted(root.password_input);
+                    root.login_submitted(password_input);
                     password_input = "";
                 }
             }

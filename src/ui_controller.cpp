@@ -63,7 +63,8 @@ void UIController::refresh_explorer() {
         items->push_back(ExplorerItem{
             .name = slint::SharedString(display_name),
             .is_directory = item.is_directory,
-            .path = slint::SharedString(final_path.string())
+            .path = slint::SharedString(final_path.string()),
+            .extension = get_file_extension(display_name)
         });
     }
 
@@ -125,7 +126,7 @@ void UIController::bind_ui_callbacks() {
             gui->set_is_authenticated(true);
             this->refresh_explorer();
         } else {
-            gui->set_password_placeholder("Wrong Password");
+            gui->set_form_label_2("Invalid Password");
         }
     });
     // ====================================================

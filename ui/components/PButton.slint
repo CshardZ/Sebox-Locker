@@ -5,25 +5,42 @@ import { Theme } from "../config/theme.slint";
 
 
 export component PButton inherits Rectangle {
-    height: 50px;
-    background: #bffbd2;
-    border-radius: 5px;
-    border-width: 2px;
-    border-color: green;
-
     in property <string> label: "PButton";
     callback clicked();
-    
+
+    height: 50px;
+    background: @linear-gradient(180deg, #d4ffde 0%, #bffbd2 100%);
+    border-radius: 5px;
+    border-width: 1px;
+    border-color: #55b96e;
+
     Text {
         text: root.label;
-        color: Theme.text-color-2;
-        vertical-alignment: center;
-        horizontal-alignment: center;
+        color: #064a1a;
+        font-weight: 600;
+        
+        // Manual centering: (ParentWidth - TextWidth) / 2
+        x: (parent.width - self.width) / 2 + (touch.pressed ? 1px : 0px);
+        y: (parent.height - self.height) / 2 + (touch.pressed ? 2px : 0px);
+        
+        // Ensure the text knows its size
+        width: self.preferred-width;
+        height: self.preferred-height;
     }
 
-    TouchArea {
-        clicked => {
-            root.clicked();
+    // background color transition
+    states [
+        pressed when touch.pressed: {
+            background: #a3d9b0;
+            border-color: #2e7d42;
+            in {
+                animate background, border-color { duration: 100ms; }
+            }
         }
+    ]
+
+    touch := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
     }
 }

@@ -81,3 +81,8 @@ void delete_directory(const string& directory_path) {
     }
 }
 // ================================================================================================
+string get_file_extension(const string& filename) {
+    filesystem::path path(filename);
+    // If there is no extension, it returns an empty path or ""
+    return path.extension().string();
+}

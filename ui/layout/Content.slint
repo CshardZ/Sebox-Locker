@@ -10,13 +10,41 @@ export component Content inherits Rectangle {
 
     VerticalLayout {
         padding: 10px;
-        
-        ListView {
+        spacing: 8px;
+
+        if explorer_items.length > 0 : ListView {
             for item in explorer_items : ExplorerItem {
                 name: item.name;
                 is_directory: item.is_directory;
                 path: item.path;
+                extension: item.extension;
                 clicked(filepath) => { view_file(filepath); }
+            }
+        }
+
+        if explorer_items.length == 0 : HorizontalLayout {
+            alignment: center;
+
+            VerticalLayout {
+                width: 200px; 
+                alignment: center;
+                cross-axis-alignment: center;
+                spacing: 15px;
+
+                Image {
+                    source: @image-url("../../assets/icons/plant-icon.svg");
+                    width: 140px;
+                    height: 140px;
+                    colorize: #4a6755;
+                }
+                
+                Text {
+                    text: "Empty Locker";
+                    color: #4a6755;
+                    font-size: 18px;
+                    font-weight: 600;
+                    horizontal-alignment: center;
+                }
             }
         }
     }

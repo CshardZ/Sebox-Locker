@@ -5,13 +5,13 @@ import { Content } from "layout/Content.slint";
 import { AuthForm } from "components/AuthForm.slint";
 import { ExplorerItem } from "models.slint";
 
- 
+              
 export component RootWindow inherits Window {
     default-font-family: "Outfit";
     default-font-weight: 600;
     default-font-size: 16px; 
      
-    // Component styles
+    // Component styles 
     title: "Sebox Locker"; 
     min-width: 800px;
     min-height: 500px;
@@ -21,6 +21,7 @@ export component RootWindow inherits Window {
     in-out property <bool> is_first_startup: false;
     in-out property <bool> is_authenticated: false;
     in-out property <string> password_placeholder: "Enter Password";
+    in-out property <string> form_label_2: "Unlock Sebox";
     callback password_created(string);
     callback login_submitted(string);
 
@@ -42,6 +43,7 @@ export component RootWindow inherits Window {
             AuthForm {
                 is_first_startup: root.is_first_startup;
                 password_placeholder: root.password_placeholder;
+                form_label_2: root.form_label_2;
                 login_submitted(password_input) => { root.login_submitted(password_input); }
                 password_created(password_input) => { root.password_created(password_input); }
             }
