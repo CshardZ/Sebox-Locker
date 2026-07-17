@@ -21,6 +21,6 @@
 * libsodium - encryption
 
 ## Sebox Demo
-<video src="./assets/sebox_demo_video.mp4" controls>
+<video src="https://github.com/user-attachments/assets/8e1555d5-80f5-4093-aa9b-915839e13fd2" controls width="100%">
   Your browser does not support the video tag.
 </video>
