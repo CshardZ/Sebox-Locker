@@ -12,6 +12,8 @@ export component ExplorerItem inherits Rectangle {
     in property <string> extension;
 
     callback clicked(string);
+    callback request_rename(string);
+    callback request_delete(string);
 
     height: 60px;
     border-width: 1px;
@@ -38,27 +40,45 @@ export component ExplorerItem inherits Rectangle {
         double-clicked => { root.clicked(path); }
     }
 
-    HorizontalLayout {
-        padding-left: 16px;
-        padding-right: 16px;
-        spacing: 16px;
-        alignment: start;
-
-        VerticalLayout {
-            alignment: center;
-            Image {
-                source: root.selected_icon;
-                width: 24px;
-                height: 24px;
-                colorize: #33483A; 
+    // Wrap layout in ContextMenuArea - for right click menu
+    ContextMenuArea {
+        HorizontalLayout {
+            padding-left: 16px;
+            padding-right: 16px;
+            spacing: 16px;
+            alignment: start;
+            VerticalLayout {
+                alignment: center;
+                Image {
+                    source: root.selected_icon;
+                    width: 24px;
+                    height: 24px;
+                    colorize: #33483A; 
+                }
+            }
+            Text {
+                text: root.name;
+                color: #2d4536;
+                font-size: 15px;
+                vertical-alignment: center;
             }
         }
 
-        Text {
-            text: root.name;
-            color: #2d4536;
-            font-size: 15px;
-            vertical-alignment: center;
+        Menu {
+            MenuItem {
+                title: "Open";
+                activated => { root.clicked(path); }
+            }
+            MenuItem {
+                title: "Rename";
+                activated => { request_rename(path); }
+            }
+            MenuSeparator {}
+            MenuItem {
+                title: "DELETE";
+                activated => { request_delete(path); }
+            }
+            MenuSeparator {}
         }
     }
 }

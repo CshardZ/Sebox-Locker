@@ -16,4 +16,5 @@ class UIController {
         slint::ComponentHandle<RootWindow> gui;
 
         FileService& file_service;
+        std::string path_to_rename;
 };

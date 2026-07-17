@@ -6,6 +6,8 @@ import { ExplorerItem } from "../models.slint";
 export component Content inherits Rectangle {
     in property <[ExplorerItem]> explorer_items: [];
     callback view_file(string);
+    callback request_rename(string);
+    callback request_delete(string);
     background: #EEF5EF;
 
     VerticalLayout {
@@ -18,7 +20,9 @@ export component Content inherits Rectangle {
                 is_directory: item.is_directory;
                 path: item.path;
                 extension: item.extension;
-                clicked(filepath) => { view_file(filepath); }
+                clicked(filepath) => { view_file(filepath); };
+                request_rename(filepath) => { request_rename(filepath); };
+                request_delete(filepath) => { request_delete(filepath); };
             }
         }
 

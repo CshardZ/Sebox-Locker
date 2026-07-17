@@ -157,6 +157,13 @@ void FileService::write_file(const string& filepath, const vector<unsigned char>
     file.close();
 }
 // ================================================================================================
+void FileService::rename_file(const std::string& filepath, const std::string& newname) {
+    fs::path old_path(filepath);
+    fs::path new_path = old_path.parent_path() / newname;
+    if (fs::exists(old_path)) {
+        fs::rename(old_path, new_path);
+    }
+}
 
 
 

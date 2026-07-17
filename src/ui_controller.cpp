@@ -130,5 +130,31 @@ void UIController::bind_ui_callbacks() {
         }
     });
     // ====================================================
+    gui->on_request_rename([this](slint::SharedString path) {
+        this->path_to_rename = std::string(path);
+        // Open the rename request popup
+        gui->set_show_rename_popup(true);
+    });
+    // ====================================================
+    gui->on_rename_submitted([this](slint::SharedString filename) {
+        std::string new_name = std::string(filename);
+        this->file_service.rename_file(this->path_to_rename, new_name); // will overwrite the oldpath with newfilename
+        // trigger explorer refresh
+        this->refresh_explorer();
+        // Close the popup
+        gui->set_show_rename_popup(false);
+    });
+    // ====================================================
+    gui->on_rename_cancelled([this]() {
+        gui->set_show_rename_popup(false);
+    });
+    // ====================================================
+    gui->on_request_delete([this](slint::SharedString filepath) {
+        std::string to_delete_path = std::string(filepath);
+        this->file_service.delete_file(to_delete_path);
+        // trigger explorer refresh
+        this->refresh_explorer();
+    });
+    // ====================================================
 }
 // ================================================================================================

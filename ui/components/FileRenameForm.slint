@@ -1,0 +1,62 @@
+import { Theme } from "../config/theme.slint";
+import { LineEdit } from "std-widgets.slint";
+import { PButton } from "../components/PButton.slint";
+
+export component FileRenameForm {
+    in-out property <string> new_name_input;
+    
+    callback rename_submitted(string);
+    callback rename_cancelled();
+
+    Rectangle {
+        visible: root.visible;
+        x: (parent.width - self.width) / 2;
+        y: (parent.height - self.height) / 2;
+        
+        width: 400px;
+        height: 250px;
+        background: #19362B;
+        border-radius: 5px;
+        z: 1000; 
+
+        VerticalLayout {
+            alignment: center;
+            spacing: 20px;
+            padding: 30px;
+
+            Text {
+                text: "Rename File";
+                color: Theme.text-color-3;
+                font-size: 18px;
+                font-weight: 600;
+                horizontal-alignment: center;
+            }
+
+            LineEdit {
+                placeholder-text: "Enter new name with extension...";
+                horizontal-alignment: center;
+                text <=> new_name_input;
+
+                accepted(text) => {
+                    root.rename_submitted(new_name_input);
+                    new_name_input = "";
+                }
+            }
+
+            HorizontalLayout {
+                spacing: 10px;
+                PButton {
+                    label: "Cancel";
+                    clicked => { root.rename_cancelled(); }
+                }
+                PButton {
+                    label: "Apply";
+                    clicked => { 
+                        root.rename_submitted(root.new_name_input);
+                        new_name_input = "";
+                    }
+                }
+            }
+        }
+    }
+}

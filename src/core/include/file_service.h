@@ -32,6 +32,7 @@ class FileService {
         void create_file(const std::string& filepath);
         std::vector<unsigned char> read_file(const std::string& filepath);
         void write_file(const std::string& filepath, const std::vector<unsigned char>& data);
+        void rename_file(const std::string& filepath, const std::string& newname);
         void view_file(const std::string& filePath);
         void delete_file(const std::string& filepath);
 };
