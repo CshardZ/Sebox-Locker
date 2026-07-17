@@ -21,6 +21,7 @@ add_executable(
     src/app_utils.cpp
     src/ui_controller.cpp
     src/main.cpp
+    assets/resource.rc
 )
 
 # --- CPM
@@ -52,7 +53,6 @@ endif()
 # --- vcpkg packages
 find_package(nfd CONFIG REQUIRED)
 find_package(unofficial-sodium CONFIG REQUIRED)
-find_package(nlohmann_json CONFIG REQUIRED)
 
 # --- Includes
 target_include_directories(Sebox PRIVATE
@@ -64,5 +64,4 @@ target_link_libraries(Sebox PRIVATE
     Slint::Slint
     nfd::nfd
     unofficial-sodium::sodium
-    nlohmann_json::nlohmann_json
 )

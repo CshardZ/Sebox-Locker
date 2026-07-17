@@ -17,20 +17,11 @@ namespace fs = std::filesystem;
 using namespace std;
 
 // TODO: remove string and fs::path conversion for interchanging paths - choose any one of them
-// ================================================================================================
-FileService::FileService(const vector<unsigned char>& key) {
-    if (sodium_init() < 0)
-        throw runtime_error("libsodium could not be initialized.");
-    if (key.size() != crypto_secretstream_xchacha20poly1305_KEYBYTES)
-        throw invalid_argument("Invalid key size. Must be 32 bytes.");
-    sodium_key = key;
-}
 
-FileService::~FileService() {
-    if (!sodium_key.empty()) {
-        sodium_memzero(sodium_key.data(), sodium_key.size());
-    }
-}
+void FileService::set_key(const std::vector<unsigned char>& key) {
+    sodium_key = key;
+} 
+
 
 // ================================================================================================
 vector<string> FileService::select_and_copy_files() {
@@ -134,7 +125,7 @@ void FileService::delete_file(const string& file_path) {
     cout <<"File deleted: " << file_path << endl;
 }
 // ================================================================================================
-vector<char> FileService::read_file(const string& filepath) {
+vector<unsigned char> FileService::read_file(const string& filepath) {
     ifstream file(filepath, ios::binary | ios::ate);
     
     if (!file.is_open()) {
@@ -144,15 +135,15 @@ vector<char> FileService::read_file(const string& filepath) {
     streamsize size = file.tellg();
     file.seekg(0, ios::beg);
 
-    vector<char> buffer(size);
-    if (file.read(buffer.data(), size)) {
+    vector<unsigned char> buffer(size);
+    if (file.read(reinterpret_cast<char*>(buffer.data()), size)) { // default is char, unsigned char requires cast
         return buffer;
     }
     return {};
 }
 
 // ================================================================================================
-void FileService::write_file(const string& filepath, const vector<char>& data) {
+void FileService::write_file(const string& filepath, const vector<unsigned char>& data) {
     ofstream file(filepath, ios::binary);
     
     if (!file.is_open()) {
@@ -162,16 +153,27 @@ void FileService::write_file(const string& filepath, const vector<char>& data) {
                 << " | Error: " << ec.message() << std::endl;
     }
 
-    file.write(data.data(), data.size());
+    file.write(reinterpret_cast<const char*>(data.data()), data.size()); // default is char, unsigned char requires cast
     file.close();
 }
 // ================================================================================================
+void FileService::rename_file(const std::string& filepath, const std::string& newname) {
+    fs::path old_path(filepath);
+    fs::path new_path = old_path.parent_path() / newname;
+    if (fs::exists(old_path)) {
+        fs::rename(old_path, new_path);
+    }
+}
 
 
 
 
 // ================================================================================================
 bool FileService::encrypt_and_copy_file(const string& source, const string& destination) {
+    if (sodium_key.empty()) {
+        std::cerr << "CRITICAL: sodium_key is empty!" << std::endl;
+        return false;
+    }
     fs::path src_path(source);
     fs::path dst_path(destination);
     ifstream in(src_path, ios::binary);
@@ -204,6 +206,11 @@ bool FileService::encrypt_and_copy_file(const string& source, const string& dest
 }
 // ================================================================================================
 bool FileService::decrypt_and_copy_file(const string& source, const string& destination) {
+    if (sodium_key.empty()) {
+        std::cerr << "CRITICAL: sodium_key is empty!" << std::endl;
+        return false;
+    }
+
     fs::path src_path(source);
     fs::path dst_path(destination);
     ifstream in(src_path, ios::binary);

@@ -35,6 +35,30 @@ fs::path get_app_data_path() {
     cout <<"Created/Retrieved App data path: " << app_data_path << endl;
     return app_data_path;
 }
+
+
+void create_backup(const std::string& source, const std::string& destination) {
+    try {
+        fs::path src_path(source);
+        fs::path dest_path = fs::path(destination) / "Sebox_Locker_BACKUP";
+        if (!fs::exists(src_path) || !fs::is_directory(src_path)) {
+            throw std::runtime_error("Source directory does not exist or is not a directory.");
+        }
+        if (!fs::exists(dest_path)) {
+            fs::create_directories(dest_path);
+        }
+
+        // copy_options::recursive: Copies subdirectories and their contents
+        // copy_options::overwrite_existing: Overwrites files if they already exist in dest
+        fs::copy(src_path, dest_path, fs::copy_options::recursive | fs::copy_options::overwrite_existing);
+        std::cout << "Backup completed successfully." << std::endl;
+
+    } catch (const fs::filesystem_error& e) {
+        std::cerr << "Filesystem error: " << e.what() << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "General error: " << e.what() << std::endl;
+    }
+}
 // ================================================================================================
 
 
@@ -57,8 +81,8 @@ void delete_directory(const string& directory_path) {
     }
 }
 // ================================================================================================
-
-
-
-
-// ================================================================================================
+string get_file_extension(const string& filename) {
+    filesystem::path path(filename);
+    // If there is no extension, it returns an empty path or ""
+    return path.extension().string();
+}

@@ -2,25 +2,23 @@ import { PButton } from "../components/PButton.slint";
 
 export component Sidebar inherits Rectangle {
     callback add_files();
-    // callback add_folder();
+    callback select_backup_path();
 
     background: #19362B;
     
     VerticalLayout {
         padding: 20px;
-        spacing: 4pt;
+        spacing: 6pt;
         alignment: start;
         
         PButton {
             label: "Add Files";
             clicked => { add_files(); }
         }
-        /* 
         PButton {
-            label: "Add Folder";
-            clicked => { add_folder(); }
+            label: "Export Backup";
+            clicked => { select_backup_path(); }
         }
-        */
         
         // Just to fill the remaining empty space
         Rectangle { vertical-stretch: 1; }

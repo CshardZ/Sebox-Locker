@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <fstream>
+#include<iostream>
 #include <slint.h>
 #include "index.h"
 
@@ -15,15 +16,11 @@
 namespace fs = std::filesystem;
 
 
-// TODO: use std namespace and remove all std:: prefixes
 // ================================================================================================
-std::vector<unsigned char> tempKey = { // TODO - not here
-    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
-    17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32
-};
-
 // Constructor
-UIController::UIController(slint::ComponentHandle<RootWindow> gui, bool is_first_startup) : gui(gui), file_service(tempKey) {
+UIController::UIController(slint::ComponentHandle<RootWindow> gui, bool is_first_startup, FileService& fs) 
+    : gui(gui), file_service(fs) 
+{
     this->gui->set_is_first_startup(is_first_startup);
 }
 
@@ -50,7 +47,13 @@ void UIController::refresh_explorer() {
         if (item.is_directory) continue;
 
         fs::path final_path = source_dir / item.name;
-        std::string display_name = fs::path(item.name).stem().string();
+        std::string filename = fs::path(item.name).filename().string();
+        std::string display_name;
+        if (filename.ends_with(".enc")) {
+            display_name = filename.substr(0, filename.size() - 4); // remove .enc extension for display
+        } else {
+            display_name = filename;
+        }
 
         if (decrypting) {
             final_path = dec_dir / display_name;
@@ -60,7 +63,8 @@ void UIController::refresh_explorer() {
         items->push_back(ExplorerItem{
             .name = slint::SharedString(display_name),
             .is_directory = item.is_directory,
-            .path = slint::SharedString(final_path.string())
+            .path = slint::SharedString(final_path.string()),
+            .extension = get_file_extension(display_name)
         });
     }
 
@@ -95,22 +99,13 @@ void UIController::bind_ui_callbacks() {
         this->refresh_explorer();
     });
     // ====================================================
-    /*
     gui->on_open_nfd_folder_selector([this]() {
-        std::cout <<"Add Folder - button clicked" << std::endl;
-        fs::path seboxAppDataDir = get_app_data_path();
-        std::string folder = this->picker.pick_folder();
-        if(!folder.empty()) {
-            fs::path source = folder;
-            fs::copy(
-                source, seboxAppDataDir / source.filename(), 
-                fs::copy_options::recursive | fs::copy_options::overwrite_existing
-            );
-        }
-        std::cout<<"Folder has been copied to appdata directory"<<std::endl;
-        this->refresh_explorer();
+        std::string folder_path = this->file_service.select_and_copy_folder(); // TODO: doesnt copy - refactor file_service method name
+        fs::path sebox_root_folder = get_app_data_path();
+        fs::path user_decrypted_folder = sebox_root_folder / "User-Data" / "decrypted";
+        fs::path backup_path(folder_path);
+        create_backup(user_decrypted_folder.string(), backup_path.string());
     });
-    */
     // ====================================================
     gui->on_view_file([this](slint::SharedString path) {
         std::string file_path = std::string(path);
@@ -119,37 +114,46 @@ void UIController::bind_ui_callbacks() {
     // ====================================================
     gui->on_password_created([this](slint::SharedString user_input) {
         std::string password = std::string(user_input);
-        fs::path sebox_auth_folder = get_app_data_path() / "Sebox-Data" / "auth";
-        fs::path password_file = sebox_auth_folder / "hashed_password.txt";
-        fs::path password_file_encrypted = password_file;
-        password_file_encrypted += ".enc";
-
-        std::string hashed_password = AuthService::hash_password(password);
-        std::vector<char> password_vector(hashed_password.begin(), hashed_password.end());
-        this->file_service.write_file(password_file.string(), password_vector);
-        this->file_service.encrypt_and_copy_file(password_file.string(), password_file_encrypted.string());
-        this->file_service.delete_file(password_file.string());
-        
+        AuthService::create_and_inject_master_key(this->file_service, password);  
         gui->set_is_first_startup(false);
         gui->set_is_authenticated(false);
     });
     // ====================================================
     gui->on_login_submitted([this](slint::SharedString user_input) {
         std::string password = std::string(user_input);
-        fs::path sebox_auth_folder = get_app_data_path() / "Sebox-Data" / "auth";
-        fs::path password_file = sebox_auth_folder / "hashed_password.txt";
-        fs::path password_file_encrypted = password_file;
-        password_file_encrypted += ".enc";
-        this->file_service.decrypt_and_copy_file(password_file_encrypted.string(), password_file.string());
-        std::vector<char> hashed_password_vector = this->file_service.read_file(password_file.string());
-        std::string hashed_password_string(hashed_password_vector.begin(), hashed_password_vector.end());
-        bool matched = AuthService::verify_password(password, hashed_password_string);
+        bool matched = AuthService::verify_login(this->file_service, password);
         if(matched) {
             gui->set_is_authenticated(true);
+            this->refresh_explorer();
         } else {
-            gui->set_password_placeholder("Wrong Password");
+            gui->set_form_label_2("Invalid Password");
         }
-        this->file_service.delete_file(password_file.string());
+    });
+    // ====================================================
+    gui->on_request_rename([this](slint::SharedString path) {
+        this->path_to_rename = std::string(path);
+        // Open the rename request popup
+        gui->set_show_rename_popup(true);
+    });
+    // ====================================================
+    gui->on_rename_submitted([this](slint::SharedString filename) {
+        std::string new_name = std::string(filename);
+        this->file_service.rename_file(this->path_to_rename, new_name); // will overwrite the oldpath with newfilename
+        // trigger explorer refresh
+        this->refresh_explorer();
+        // Close the popup
+        gui->set_show_rename_popup(false);
+    });
+    // ====================================================
+    gui->on_rename_cancelled([this]() {
+        gui->set_show_rename_popup(false);
+    });
+    // ====================================================
+    gui->on_request_delete([this](slint::SharedString filepath) {
+        std::string to_delete_path = std::string(filepath);
+        this->file_service.delete_file(to_delete_path);
+        // trigger explorer refresh
+        this->refresh_explorer();
     });
     // ====================================================
 }

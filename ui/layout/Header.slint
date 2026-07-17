@@ -1,27 +1,40 @@
 import "../config/fonts/Sansation-Light.ttf";
 import "../config/fonts/Sansation-Regular.ttf";
 import "../config/fonts/Sansation-Bold.ttf";
+import { Theme } from "../config/theme.slint";
+
 
 export component Header inherits Rectangle {
     background: #23483A;
+    height: 80px; 
 
     HorizontalLayout {
         padding-left: 20px;
+        spacing: 10px;
         
-        // App Logo
-        // Image {
-        //     source: @image-url("logo.png");
-        // }
+        VerticalLayout {
+            alignment: center;
+            width: 36px;
+            
+            Image {
+                source: @image-url("../../assets/icons/app-logo-icon.svg");
+                width: 34px;
+                height: 34px;
+                colorize: #E0FDEB;
+            }
+        }
 
-        // App Name 
-        Text {
-            text: "SEBOX";
-            color: #EEF5EF;
-            font-family: "Sansation";
-            font-size: 26px;
-            font-weight: 1200;
-            letter-spacing: 4px;
-            vertical-alignment: center;
+        VerticalLayout {
+            alignment: center;
+            
+            Text {
+                text: "SEBOX";
+                color: #EEF5EF;
+                font-family: "Sansation";
+                font-size: 26px;
+                font-weight: 700;
+                letter-spacing: 4px;
+            }
         }
     }
 }

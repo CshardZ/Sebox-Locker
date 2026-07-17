@@ -2,50 +2,83 @@
 // - Invidual ui component for file/folder item in explorer
 // ----------------------------------------------
 import { Theme } from "../config/theme.slint";
-import { DividerLine } from "./DividerLine.slint";
+import { Assets } from "../config/assets.slint";
 
 
 export component ExplorerItem inherits Rectangle {
     in property <string> name;
     in property <string> path;
     in property <bool> is_directory;
+    in property <string> extension;
 
     callback clicked(string);
+    callback request_rename(string);
+    callback request_delete(string);
 
     height: 60px;
-    border-radius: 5px;
-    background: touch.pressed ? #d1e7dd : #ffffff;
+    border-width: 1px;
+    border-color: #dce4de;
+    border-radius: 2px;
+    
+    background: touch.pressed ? #d8e5de : (touch.has-hover ? #e6ede9 : #ffffff);
+    animate background { duration: 150ms; }
+
+
+    // property that saves the right icon based on the extension
+    property <image> selected_icon: 
+        is_directory ? Assets.default-icon :
+        extension == ".txt" ? Assets.text-icon :
+        (extension == ".doc" || extension == ".docx" || extension == ".pdf") ? Assets.doc-icon :
+        (extension == ".jpg" || extension == ".png" || extension == ".svg") ? Assets.image-icon :
+        (extension == ".mp4" || extension == ".mov") ? Assets.video-icon :
+        (extension == ".zip" || extension == ".rar") ? Assets.archive-icon :
+        Assets.default-icon;
+
 
     touch := TouchArea {
+        mouse-cursor: pointer;
         double-clicked => { root.clicked(path); }
     }
 
-    HorizontalLayout {
-        padding: 10px;
-        spacing: 20px;
-
-        VerticalLayout {
-            alignment: center;
-            if root.is_directory : Image {
-                source: @image-url("../../assets/icons/folder-open-icon.png");
-                width: 24px;
-                height: 24px;
+    // Wrap layout in ContextMenuArea - for right click menu
+    ContextMenuArea {
+        HorizontalLayout {
+            padding-left: 16px;
+            padding-right: 16px;
+            spacing: 16px;
+            alignment: start;
+            VerticalLayout {
+                alignment: center;
+                Image {
+                    source: root.selected_icon;
+                    width: 24px;
+                    height: 24px;
+                    colorize: #33483A; 
+                }
             }
-            if !root.is_directory : Image {
-                source: @image-url("../../assets/icons/file-icon.png");
-                width: 24px;
-                height: 24px;
+            Text {
+                text: root.name;
+                color: #2d4536;
+                font-size: 15px;
+                vertical-alignment: center;
             }
         }
 
-        Text {
-            text: root.name;
-            color: Theme.text-color-1;
-            vertical-alignment: center;
+        Menu {
+            MenuItem {
+                title: "Open";
+                activated => { root.clicked(path); }
+            }
+            MenuItem {
+                title: "Rename";
+                activated => { request_rename(path); }
+            }
+            MenuSeparator {}
+            MenuItem {
+                title: "DELETE";
+                activated => { request_delete(path); }
+            }
+            MenuSeparator {}
         }
-    }
-
-    DividerLine {
-        y: parent.height - 1px;
     }
 }

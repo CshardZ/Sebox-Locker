@@ -3,15 +3,18 @@ import { Header } from "layout/Header.slint";
 import { Sidebar } from "layout/Sidebar.slint";
 import { Content } from "layout/Content.slint";
 import { AuthForm } from "components/AuthForm.slint";
+import { FileRenameForm } from "components/FileRenameForm.slint";
 import { ExplorerItem } from "models.slint";
 
- 
+              
 export component RootWindow inherits Window {
     default-font-family: "Outfit";
     default-font-weight: 600;
     default-font-size: 16px; 
+    icon: @image-url("../assets/icons/app-logo-icon.svg");
+    // default-position: center;
      
-    // Component styles
+    // Component styles 
     title: "Sebox Locker"; 
     min-width: 800px;
     min-height: 500px;
@@ -21,16 +24,22 @@ export component RootWindow inherits Window {
     in-out property <bool> is_first_startup: false;
     in-out property <bool> is_authenticated: false;
     in-out property <string> password_placeholder: "Enter Password";
+    in-out property <string> form_label_2: "Unlock Sebox";
     callback password_created(string);
     callback login_submitted(string);
 
     // File Picker
     callback open_nfd_files_selector();
-    // callback open_nfd_folder_selector();
- 
+    callback open_nfd_folder_selector(); // used only for selecting export backup path
+    in-out property <bool> show_rename_popup: false;
+
     // File Explorer
     in property <[ExplorerItem]> explorer_items;
     callback view_file(string);
+    callback request_rename(string);
+    callback rename_submitted(string);
+    callback rename_cancelled();
+    callback request_delete(string);
 
     VerticalLayout {
         Header {
@@ -42,6 +51,7 @@ export component RootWindow inherits Window {
             AuthForm {
                 is_first_startup: root.is_first_startup;
                 password_placeholder: root.password_placeholder;
+                form_label_2: root.form_label_2;
                 login_submitted(password_input) => { root.login_submitted(password_input); }
                 password_created(password_input) => { root.password_created(password_input); }
             }
@@ -52,7 +62,7 @@ export component RootWindow inherits Window {
                 width: 300px;
                 vertical-stretch: 1; 
                 add_files => { root.open_nfd_files_selector(); }
-                // add_folder => { root.open_nfd_folder_selector(); }
+                select_backup_path => { root.open_nfd_folder_selector(); }
             }
 
             Content {
@@ -60,7 +70,25 @@ export component RootWindow inherits Window {
                 vertical-stretch: 1;
                 explorer_items: root.explorer_items;
                 view_file(filepath) => {root.view_file(filepath); }
+                request_rename(filepath) => {root.request_rename(filepath); }
+                request_delete(filepath) => { root.request_delete(filepath); }
             }
+        }
+    }
+    if(show_rename_popup) : Rectangle {
+        width: 100%;
+        height: 100%;
+        // dim bakground - transparent black tint
+        background: #00000080;
+        z: 100; // Ensures it stays on top like absolute positioning
+
+        FileRenameForm {
+            // Center within full-screen rectangle
+            x: (parent.width - self.width) / 2;
+            y: (parent.height - self.height) / 2;
+            
+            rename_submitted(new_name) => { root.rename_submitted(new_name); }
+            rename_cancelled => { root.rename_cancelled(); }
         }
     }
 }
