@@ -15,6 +15,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # --- Executable
 add_executable(
     Sebox
+    WIN32
     src/core/file_service.cpp
     src/core/auth_service.cpp
     src/core/core_utils.cpp
@@ -65,3 +66,11 @@ target_link_libraries(Sebox PRIVATE
     nfd::nfd
     unofficial-sodium::sodium
 )
+
+# default executable links to /SUBSYSTEM:CONSOLE, changing it to WINDOWS for GUI only and not debug/output console 
+# on GUIs it looks for speical func called WinMain on executing - set the first entry to main function of our project using /ENTRY:mainCRTStartup
+if(WIN32)
+    target_link_libraries(Sebox PRIVATE shell32)
+    # This explicitly tells the Windows linker to use main() as the entry point
+    target_link_options(Sebox PRIVATE /ENTRY:mainCRTStartup)
+endif()

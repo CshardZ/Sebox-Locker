@@ -4,6 +4,12 @@
 //      - File encryption/decryption
 //      - File CRUD operations
 // ----------------------------------------------
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN  // Speeds up compile
+#include <windows.h>
+#include <shellapi.h>
+#endif
+
 #include "include/file_service.h"
 #include <iostream>
 #include <fstream>
@@ -12,6 +18,8 @@
 #include <filesystem>
 #include <nfd.h>
 #include <sodium.h>
+#include <shellapi.h>
+
 
 namespace fs = std::filesystem;
 using namespace std;
@@ -90,22 +98,16 @@ vector<FileSystemEntry> FileService::get_directory_contents(const string& direct
 }
 // ================================================================================================
 void FileService::view_file(const string& file_path) {
-    /* Open file in system configured apps */
-    fs::path path(file_path);
-    string command;
-
     #ifdef _WIN32
-        // Windows: "start" command
-        command = "start \"\" \"" + path.string() + "\"";
+        // Use ShellExecuteA for Windows
+        ShellExecuteA(NULL, "open", file_path.c_str(), NULL, NULL, SW_SHOWNORMAL);
     #elif __APPLE__
-        // macOS: "open" command
-        command = "open \"" + path.string() + "\"";
+        string command = "open \"" + file_path + "\"";
+        system(command.c_str());
     #else
-        // Linux: "xdg-open" command
-        command = "xdg-open \"" + path.string() + "\"";
+        string command = "xdg-open \"" + file_path + "\"";
+        system(command.c_str());
     #endif
-
-    system(command.c_str());
 }
 // ================================================================================================
 void FileService::create_file(const string& file_path) {
